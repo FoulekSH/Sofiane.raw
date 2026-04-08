@@ -7,7 +7,13 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "tsx prisma/seed.ts",
+    "sync-photos": "tsx prisma/sync-photos.ts",
+    "set-featured": "tsx prisma/set-featured.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
@@ -37,6 +43,7 @@
     "eslint-config-next": "16.2.2",
     "prisma": "^5.22.0",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
