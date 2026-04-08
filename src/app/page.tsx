@@ -4,11 +4,16 @@ import ContactForm from '@/components/ContactForm'
 import ScrollReveal from '@/components/ScrollReveal'
 import Hero from '@/components/Hero'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const photos = await prisma.photo.findMany({
     where: { isPublic: true },
     orderBy: { order: 'asc' }
   })
+
+  // Log to server console to debug on VPS
+  console.log(`[Home] Found ${photos.length} public photos.`)
 
   const featuredPhoto = photos.find(p => p.isFeatured) || photos[0]
 
