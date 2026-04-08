@@ -35,12 +35,15 @@ jobs:
         username: bilal
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
-          cd /var/www/sofiane-portfolio || mkdir -p /var/www/sofiane-portfolio
-          # Pull latest changes (assuming the repository is cloned there)
+          cd ~/apps/Sofiane.raw || mkdir -p ~/apps/Sofiane.raw
+          # Pull latest changes
           git pull origin main || echo "Git pull failed"
-          npm ci
+          npm install
           npx prisma generate
           npx prisma db push
+          npm run sync-photos
+          npm run seed
+          npm run set-featured
           npm run build
           # Restart PM2 process
           pm2 restart sofiane-portfolio || pm2 start npm --name "sofiane-portfolio" -- run start
