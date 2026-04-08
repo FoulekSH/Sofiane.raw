@@ -1,0 +1,46 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build Next.js App
+      run: npm run build
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        NEXTAUTH_URL: "https://sofiane.raw.evasion-studio.fr"
+
+    - name: Deploy to Server via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: 51.210.242.146
+        username: bilal
+        password: ${{ secrets.VPS_PASSWORD }}
+        script: |
+          cd /var/www/sofiane-portfolio || mkdir -p /var/www/sofiane-portfolio
+          # Pull latest changes (assuming the repository is cloned there)
+          git pull origin main || echo "Git pull failed"
+          npm ci
+          npx prisma generate
+          npx prisma db push
+          npm run build
+          # Restart PM2 process
+          pm2 restart sofiane-portfolio || pm2 start npm --name "sofiane-portfolio" -- run start

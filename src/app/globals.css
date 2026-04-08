@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', sans-serif;
+    --font-playfair: 'Playfair Display', serif;
+  }
+}
+
+body {
+  background-color: theme('colors.zinc.950');
+  color: theme('colors.zinc.50');
+  font-family: var(--font-inter);
+}
+
+h1, h2, h3, .font-serif {
+  font-family: var(--font-playfair);
+}
+
+.parallax-container {
+  overflow: hidden;
+}
+
+.parallax-img {
+  transform: translateY(0);
+  transition: transform 0.1s ease-out;
+}

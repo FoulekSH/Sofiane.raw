@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String    @id @default(cuid())
+  name      String
+  email     String?   @unique
+  phone     String?
+  company   String?
+  address   String?
+  notes     String?
+  invoices  Invoice[]
+  transfers Transfer[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  type        String   @default("INVOICE") // INVOICE, QUOTE
+  invoiceNum  String   @unique
+  issueDate   DateTime @default(now())
+  dueDate     DateTime?
+  address     String?  // Client address at the time of invoice
+  vatRate     Float    @default(20.0)
+  vatAmount   Float    @default(0.0)
+  totalAmount Float    // Total with VAT
+  status      String   @default("DRAFT") // DRAFT, SENT, PAID, CANCELLED
+  items       String   // JSON stringified array of items: { description, quantity, price }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Transfer {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  filename    String
+  originalName String
+  size        Int
+  expiresAt   DateTime
+  downloads   Int      @default(0)
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  filename    String
+  title       String?
+  description String?
+  category    String   @default("Portfolio") // Portrait, Mariage, Mode, Portfolio
+  order       Int      @default(0)
+  isPublic    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

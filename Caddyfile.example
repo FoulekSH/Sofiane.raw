@@ -1,0 +1,12 @@
+# Ajoutez ce bloc à votre Caddyfile existant sur le VPS (51.210.242.146)
+# Puis rechargez Caddy avec : sudo systemctl reload caddy
+
+sofiane.raw.evasion-studio.fr {
+    # Proxy vers l'application Next.js qui tourne localement sur le port 3000 (via PM2 par exemple)
+    reverse_proxy localhost:3000
+
+    # Optionnel: Limite la taille des uploads si le WeTransfer a des gros fichiers
+    request_body {
+        max_size 500MB
+    }
+}
