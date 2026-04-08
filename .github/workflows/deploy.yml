@@ -35,15 +35,34 @@ jobs:
         username: bilal
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
-          cd ~/apps/Sofiane.raw || mkdir -p ~/apps/Sofiane.raw
-          # Pull latest changes
-          git pull origin main || echo "Git pull failed"
+          set -e
+          echo "Starting deployment in ~/apps/Sofiane.raw"
+          cd ~/apps/Sofiane.raw
+          
+          echo "Updating source code..."
+          git fetch origin main
+          git reset --hard origin/main
+          
+          echo "Installing dependencies..."
           npm install
+          
+          echo "Database operations..."
           npx prisma generate
           npx prisma db push
+          
+          echo "Seeding and Syncing..."
           npm run sync-photos
           npm run seed
           npm run set-featured
+          
+          echo "Building application..."
           npm run build
-          # Restart PM2 process
-          pm2 restart sofiane-portfolio || pm2 start npm --name "sofiane-portfolio" -- run start
+          
+          echo "Restarting application..."
+          if pm2 list | grep -q "sofiane-portfolio"; then
+            pm2 restart sofiane-portfolio
+          else
+            pm2 start npm --name "sofiane-portfolio" -- run start
+          fi
+          
+          echo "Deployment successful!"
