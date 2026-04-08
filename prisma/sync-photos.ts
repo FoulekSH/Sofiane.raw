@@ -21,10 +21,12 @@ async function main() {
   for (let i = 0; i < photos.length; i++) {
     const filename = photos[i]
     await prisma.photo.upsert({
-      where: { id: `seed-${filename}` }, // Dummy ID for seeding or use filename as key if unique enough
-      update: {},
+      where: { id: filename }, // Use filename as ID directly
+      update: {
+        isPublic: true // Ensure they are public when synced
+      },
       create: {
-        id: `seed-${filename}`,
+        id: filename,
         filename,
         order: i,
         isPublic: true,

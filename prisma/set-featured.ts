@@ -10,14 +10,14 @@ async function main() {
 
   // Upsert belle_image.jpg and set as featured at order 0
   const photo = await prisma.photo.upsert({
-    where: { id: 'seed-belle_image.jpg' },
+    where: { id: 'belle_image.jpg' },
     update: { 
       isFeatured: true,
       order: -1, // Make sure it's at the very top
       isPublic: true,
     },
     create: {
-      id: 'seed-belle_image.jpg',
+      id: 'belle_image.jpg',
       filename: 'belle_image.jpg',
       order: -1,
       isPublic: true,
