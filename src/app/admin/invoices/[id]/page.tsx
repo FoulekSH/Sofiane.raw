@@ -1,8 +1,9 @@
 import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
+import PrintButton from "@/components/PrintButton"
 
-export default async function InvoiceDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
 
   const invoice = await prisma.invoice.findUnique({
     where: { id },
@@ -95,12 +96,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </div>
         
         <div className="mt-20 text-center">
-           <button 
-             onClick={() => window.print()} 
-             className="print:hidden px-8 py-3 bg-black text-white rounded-full text-xs uppercase tracking-widest font-bold hover:bg-zinc-800 transition"
-           >
-             Imprimer cette facture
-           </button>
+           <PrintButton />
         </div>
       </div>
       

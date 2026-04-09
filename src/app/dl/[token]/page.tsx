@@ -1,8 +1,8 @@
 import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 
-export default async function DownloadPage({ params }: { params: { token: string } }) {
-  const { token } = params
+export default async function DownloadPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
 
   const transfer = await prisma.transfer.findUnique({
     where: { token },

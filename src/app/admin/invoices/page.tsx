@@ -8,6 +8,7 @@ export default function InvoicesPage() {
   const [clients, setClients] = useState<any[]>([])
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   
   // Filters & Search
   const [search, setSearch] = useState("")
@@ -44,16 +45,23 @@ export default function InvoicesPage() {
     if (res.ok) setClients(await res.json())
   }
 
-  // Auto-generate invoice number
+  // Auto-generate invoice number & address
   useEffect(() => {
-    if (formData.clientId && !formData.invoiceNum) {
+    if (formData.clientId) {
       const client = clients.find(c => c.id === formData.clientId)
       if (client) {
-        const prefix = client.name.substring(0, 3).toUpperCase()
-        const year = new Date().getFullYear()
-        const random = Math.floor(1000 + Math.random() * 9000)
-        const typePrefix = formData.type === "QUOTE" ? "DEV" : "FAC"
-        setFormData(prev => ({ ...prev, invoiceNum: `${typePrefix}-${prefix}-${year}-${random}`, address: client.address || "" }))
+        setFormData(prev => {
+          // Only auto-gen invoice num if it's empty
+          let newNum = prev.invoiceNum
+          if (!newNum) {
+            const prefix = client.name.substring(0, 3).toUpperCase()
+            const year = new Date().getFullYear()
+            const random = Math.floor(1000 + Math.random() * 9000)
+            const typePrefix = prev.type === "QUOTE" ? "DEV" : "FAC"
+            newNum = `${typePrefix}-${prefix}-${year}-${random}`
+          }
+          return { ...prev, invoiceNum: newNum, address: client.address || "" }
+        })
       }
     }
   }, [formData.clientId, formData.type, clients])
@@ -115,11 +123,33 @@ export default function InvoicesPage() {
     if (res.ok) fetchInvoices()
   }
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === invoices.length) setSelectedIds([])
+    else setSelectedIds(invoices.map(i => i.id))
+  }
+
+  const downloadSelected = () => {
+    if (selectedIds.length === 0) return
+    window.open(`/admin/invoices/print?ids=${selectedIds.join(',')}`, '_blank')
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-light text-white italic">Factures & Devis</h2>
         <div className="flex gap-4 w-full md:w-auto">
+           {selectedIds.length > 0 && (
+             <button 
+               onClick={downloadSelected}
+               className="bg-zinc-800 text-white px-4 py-2 rounded text-xs uppercase tracking-widest font-bold hover:bg-zinc-700 transition"
+             >
+               Télécharger ({selectedIds.length})
+             </button>
+           )}
            <input 
              type="text" 
              placeholder="Rechercher N°..."
@@ -284,6 +314,14 @@ export default function InvoicesPage() {
         <table className="w-full text-left">
           <thead>
             <tr className="bg-zinc-950 text-zinc-500 text-[10px] uppercase tracking-[0.3em] font-bold">
+              <th className="px-6 py-5 w-10">
+                <input 
+                  type="checkbox" 
+                  checked={selectedIds.length === invoices.length && invoices.length > 0}
+                  onChange={toggleSelectAll}
+                  className="rounded border-zinc-800 bg-zinc-950 text-white focus:ring-0"
+                />
+              </th>
               <th className="px-6 py-5">Document</th>
               <th className="px-6 py-5">Client</th>
               <th className="px-6 py-5 text-right">Montant TTC</th>
@@ -294,11 +332,19 @@ export default function InvoicesPage() {
           <tbody className="divide-y divide-zinc-800">
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-zinc-600 italic">Aucun document trouvé.</td>
+                <td colSpan={6} className="px-6 py-12 text-center text-zinc-600 italic">Aucun document trouvé.</td>
               </tr>
             ) : (
               invoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-zinc-800/30 transition duration-300 group">
+                <tr key={inv.id} className={`hover:bg-zinc-800/30 transition duration-300 group ${selectedIds.includes(inv.id) ? 'bg-zinc-800/50' : ''}`}>
+                  <td className="px-6 py-5">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedIds.includes(inv.id)}
+                      onChange={() => toggleSelect(inv.id)}
+                      className="rounded border-zinc-800 bg-zinc-950 text-white focus:ring-0"
+                    />
+                  </td>
                   <td className="px-6 py-5">
                     <p className="text-zinc-200 font-medium group-hover:text-white transition">{inv.invoiceNum}</p>
                     <p className="text-[10px] text-zinc-600 uppercase tracking-widest">{new Date(inv.issueDate).toLocaleDateString()}</p>

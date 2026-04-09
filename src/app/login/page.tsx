@@ -1,7 +1,7 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { useRouter } from "next-navigation" // wait, no it's next/navigation
+import { useRouter } from "next/navigation" // wait, no it's next/navigation
 import { useState } from "react"
 
 export default function LoginPage() {

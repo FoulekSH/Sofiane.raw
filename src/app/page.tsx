@@ -3,6 +3,7 @@ import Gallery from '@/components/Gallery'
 import ContactForm from '@/components/ContactForm'
 import ScrollReveal from '@/components/ScrollReveal'
 import Hero from '@/components/Hero'
+import CategoryCarousel from '@/components/CategoryCarousel'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,9 +12,6 @@ export default async function Home() {
     where: { isPublic: true },
     orderBy: { order: 'asc' }
   })
-
-  // Log to server console to debug on VPS
-  console.log(`[Home] Found ${photos.length} public photos.`)
 
   const featuredPhoto = photos.find(p => p.isFeatured) || photos[0]
 
@@ -94,6 +92,9 @@ export default async function Home() {
             </div>
          </div>
       </section>
+
+      {/* SECTION CATEGORIES */}
+      <CategoryCarousel />
 
       {/* SECTION 4: GALERIE (Masonry) */}
       <section id="gallery" className="py-32 px-4 md:px-12 bg-white text-zinc-950">
