@@ -36,33 +36,44 @@ export default function ContactForm() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-24">
-      {/* TRUSTPILOT SECTION */}
-      <a 
-        href="https://fr.trustpilot.com/review/sofiane.raw.evasion-studio.fr" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="flex flex-col items-center space-y-8 pb-12 border-b border-zinc-900/50 animate-in fade-in duration-1000 group hover:border-zinc-700 transition-colors"
-      >
-         <div className="flex items-center gap-2">
-            <svg className="w-8 h-8 text-emerald-500" viewBox="0 0 24 24" fill="currentColor">
-               <path d="M24 9.124l-9.167-.144L12 0 9.167 8.98 0 9.124l7.417 5.378L4.583 24 12 18.622 19.417 24l-2.834-9.498L24 9.124z"/>
-            </svg>
-            <span className="text-2xl font-black tracking-tighter text-white">Trustpilot</span>
-         </div>
-         <div className="flex gap-1 group-hover:scale-110 transition-transform duration-500">
+      {/* LUXURY TRUSTPILOT BADGE */}
+      <div className="pb-12 border-b border-zinc-900/50 flex flex-col items-center gap-10">
+        <a 
+          href="https://fr.trustpilot.com/review/sofiane.raw.evasion-studio.fr" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="group relative flex flex-col items-center gap-6 p-10 rounded-3xl border border-zinc-900 bg-zinc-950/50 hover:border-emerald-500/30 transition-all duration-700"
+        >
+          {/* Subtle Glow Background */}
+          <div className="absolute inset-0 bg-emerald-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+          
+          <div className="relative flex items-center gap-3">
+             <svg className="w-6 h-6 text-emerald-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 9.124l-9.167-.144L12 0 9.167 8.98 0 9.124l7.417 5.378L4.583 24 12 18.622 19.417 24l-2.834-9.498L24 9.124z"/>
+             </svg>
+             <span className="text-xl font-black tracking-tighter text-white uppercase italic">Trustpilot</span>
+          </div>
+
+          <div className="relative flex gap-1.5">
             {[1,2,3,4,5].map(i => (
-               <div key={i} className="w-10 h-10 bg-emerald-500 flex items-center justify-center rounded-sm">
-                  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+               <div key={i} className="w-8 h-8 bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center rounded group-hover:bg-emerald-500 transition-all duration-500 delay-[50ms]">
+                  <svg className="w-4 h-4 text-emerald-500 group-hover:text-white" viewBox="0 0 24 24" fill="currentColor">
                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                   </svg>
                </div>
             ))}
-         </div>
-         <div className="text-center space-y-1">
-            <p className="text-zinc-400 text-[10px] uppercase tracking-[0.4em] font-bold">Excellent 4.9 / 5</p>
-            <p className="text-zinc-600 text-[8px] uppercase tracking-widest group-hover:text-emerald-500 transition-colors">Découvrir les avis clients sur Trustpilot →</p>
-         </div>
-      </a>
+          </div>
+
+          <div className="relative text-center space-y-2">
+             <p className="text-zinc-500 text-[9px] uppercase tracking-[0.6em] font-bold group-hover:text-white transition-colors">Retrouvez-nous sur Trustpilot</p>
+             <div className="flex items-center justify-center gap-4 text-[8px] uppercase tracking-widest text-zinc-700">
+                <span className="w-8 h-px bg-zinc-900"></span>
+                <span className="group-hover:text-emerald-500 transition-colors">Partagez votre expérience</span>
+                <span className="w-8 h-px bg-zinc-900"></span>
+             </div>
+          </div>
+        </a>
+      </div>
 
       {status === 'success' ? (
         <motion.div 

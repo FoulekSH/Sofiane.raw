@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "Portfolio de Sofiane, photographe spécialisé en portrait, mode et événements. Expérience visuelle immersive.",
 }
 
+import Script from "next/script"
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,6 +27,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="dark">
+      <head>
+        <Script 
+          src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" 
+          strategy="lazyOnload"
+        />
+      </head>
       <body className={`${inter.variable} ${playfair.variable} font-sans bg-zinc-950 text-zinc-50 antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>

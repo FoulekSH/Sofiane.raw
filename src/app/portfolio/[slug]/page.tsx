@@ -31,7 +31,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     <main className="min-h-screen bg-zinc-950 text-white pt-32 pb-20 px-4 md:px-12">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-zinc-900 pb-12">
-          <div className="space-y-4">
+          <div className="space-y-4 relative z-50">
             <Link href="/" className="text-[10px] uppercase tracking-[0.4em] text-zinc-600 hover:text-white transition">← Retour</Link>
             <h1 className="text-6xl md:text-8xl font-bold tracking-tighter uppercase italic leading-none">
               {config?.name || slug}

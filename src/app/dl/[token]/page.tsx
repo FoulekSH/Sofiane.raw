@@ -13,13 +13,20 @@ export default function DownloadPage() {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
 
   useEffect(() => {
-    fetch(`/api/admin/transfers?id=${token}`)
-      .then(res => res.json())
+    fetch(`/api/transfers/info/${token}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Erreur serveur ou transfert introuvable")
+        return res.json()
+      })
       .then(data => {
-        const t = Array.isArray(data) ? data.find((x: any) => x.token === token) : data
-        setTransfer(t)
-        if (!t?.password) setIsUnlocked(true)
-        if (t?.files) setSelectedFiles(t.files.map((f: any) => f.id))
+        setTransfer(data)
+        if (!data.password) setIsUnlocked(true)
+        if (data.files) setSelectedFiles(data.files.map((f: any) => f.id))
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error("Fetch error:", err)
+        setError(err.message)
         setLoading(false)
       })
   }, [token])
@@ -40,17 +47,29 @@ export default function DownloadPage() {
     )
   }
 
-  const downloadAllSelected = () => {
+  const downloadZip = () => {
+    if (selectedFiles.length === 0) return
+    const link = document.createElement("a")
+    link.href = `/api/transfers/download/${token}/zip?fileIds=${selectedFiles.join(",")}`
+    link.download = "" 
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const downloadAllIndividual = () => {
+    if (selectedFiles.length > 5) {
+      if (!confirm(`Attention : Votre navigateur va demander une autorisation pour chacun des ${selectedFiles.length} fichiers. Sur iPhone, il est fortement recommandé d'utiliser le bouton "ZIP" à la place. Continuer ?`)) return
+    }
+    
     selectedFiles.forEach((fileId, index) => {
-      // Small delay to avoid browser blocking multiple downloads
       setTimeout(() => {
         const link = document.createElement("a")
         link.href = `/api/transfers/download/${token}?fileId=${fileId}`
-        link.download = "" // Browser will use Content-Disposition filename
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
-      }, index * 500)
+      }, index * 1000) // 1 seconde d'intervalle pour limiter les blocages Safari
     })
   }
 
@@ -156,16 +175,25 @@ export default function DownloadPage() {
                </div>
             </div>
 
-            <div className="pt-6 space-y-6">
+            <div className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <button 
-                onClick={downloadAllSelected}
+                onClick={downloadZip}
                 disabled={selectedFiles.length === 0}
-                className="block w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 transform hover:scale-[1.02] uppercase tracking-[0.3em] text-xs shadow-2xl shadow-white/5"
+                className="bg-white text-black font-black py-5 rounded-2xl hover:bg-zinc-200 disabled:opacity-50 transition-all uppercase tracking-[0.2em] text-[10px] shadow-2xl"
               >
-                Télécharger la sélection ({selectedFiles.length})
+                Tout Télécharger (ZIP)
               </button>
-              <p className="text-zinc-600 text-[9px] uppercase tracking-widest font-bold">Les fichiers seront téléchargés individuellement sans compression ZIP.</p>
+              <button 
+                onClick={downloadAllIndividual}
+                disabled={selectedFiles.length === 0}
+                className="bg-zinc-800 text-white font-black py-5 rounded-2xl hover:bg-zinc-700 disabled:opacity-50 transition-all uppercase tracking-[0.2em] text-[10px] border border-zinc-700"
+              >
+                Tout Télécharger (Solo)
+              </button>
             </div>
+            <p className="text-zinc-600 text-[8px] uppercase tracking-widest font-bold mt-4">
+               Conseil : Utilisez le format ZIP sur iPhone pour éviter les blocages de sécurité.
+            </p>
           </div>
         )}
 
