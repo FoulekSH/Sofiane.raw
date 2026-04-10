@@ -37,14 +37,19 @@ export default function ContactForm() {
   return (
     <div className="max-w-4xl mx-auto space-y-24">
       {/* TRUSTPILOT SECTION */}
-      <div className="flex flex-col items-center space-y-8 pb-12 border-b border-zinc-900/50 animate-in fade-in duration-1000">
+      <a 
+        href="https://fr.trustpilot.com/review/sofiane.raw.evasion-studio.fr" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="flex flex-col items-center space-y-8 pb-12 border-b border-zinc-900/50 animate-in fade-in duration-1000 group hover:border-zinc-700 transition-colors"
+      >
          <div className="flex items-center gap-2">
             <svg className="w-8 h-8 text-emerald-500" viewBox="0 0 24 24" fill="currentColor">
                <path d="M24 9.124l-9.167-.144L12 0 9.167 8.98 0 9.124l7.417 5.378L4.583 24 12 18.622 19.417 24l-2.834-9.498L24 9.124z"/>
             </svg>
             <span className="text-2xl font-black tracking-tighter text-white">Trustpilot</span>
          </div>
-         <div className="flex gap-1">
+         <div className="flex gap-1 group-hover:scale-110 transition-transform duration-500">
             {[1,2,3,4,5].map(i => (
                <div key={i} className="w-10 h-10 bg-emerald-500 flex items-center justify-center rounded-sm">
                   <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -55,9 +60,9 @@ export default function ContactForm() {
          </div>
          <div className="text-center space-y-1">
             <p className="text-zinc-400 text-[10px] uppercase tracking-[0.4em] font-bold">Excellent 4.9 / 5</p>
-            <p className="text-zinc-600 text-[8px] uppercase tracking-widest">Basé sur 124 avis clients satisfaits</p>
+            <p className="text-zinc-600 text-[8px] uppercase tracking-widest group-hover:text-emerald-500 transition-colors">Découvrir les avis clients sur Trustpilot →</p>
          </div>
-      </div>
+      </a>
 
       {status === 'success' ? (
         <motion.div 
