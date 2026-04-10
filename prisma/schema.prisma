@@ -45,6 +45,8 @@ model Invoice {
   totalAmount Float    // Total with VAT
   status      String   @default("DRAFT") // DRAFT, SENT, PAID, CANCELLED
   items       String   // JSON stringified array of items: { description, quantity, price }
+  paymentTerms String?  // Informations de paiement personnalisées
+  footerNotes  String?  // Conditions générales ou notes personnalisées
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -52,26 +54,55 @@ model Invoice {
 model Transfer {
   id          String   @id @default(cuid())
   token       String   @unique
-  filename    String
-  originalName String
-  size        Int
+  files       TransferFile[]
   expiresAt   DateTime
   downloads   Int      @default(0)
+  password    String?  // Mot de passe optionnel
   clientId    String?
   client      Client?  @relation(fields: [clientId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Photo {
+model TransferFile {
+  id           String   @id @default(cuid())
+  transferId   String
+  transfer     Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  filename     String
+  originalName String
+  size         Int
+  createdAt    DateTime @default(now())
+}
+
+model CategoryConfig {
   id          String   @id @default(cuid())
-  filename    String
-  title       String?
+  name        String   @unique // Sport, Portrait, etc.
+  slug        String   @unique
+  coverImage  String?  // Nom du fichier de l'image de couverture
   description String?
-  category    String   @default("Portfolio") // Portrait, Mariage, Mode, Portfolio
-  order       Int      @default(0)
-  isPublic    Boolean  @default(true)
-  isFeatured  Boolean  @default(false)
-  createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  status    String   @default("UNREAD") // UNREAD, READ, ARCHIVED
+  createdAt DateTime @default(now())
+}
+
+model Photo {
+  id             String   @id @default(cuid())
+  filename       String
+  title          String?
+  description    String?
+  category       String   @default("Portfolio") // Portrait, Mariage, Mode, Portfolio
+  order          Int      @default(0)
+  isPublic       Boolean  @default(true)
+  showOnHomePage Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

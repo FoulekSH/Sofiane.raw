@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import prisma from "@/lib/prisma"
 
 export default async function AdminLayout({
   children,
@@ -14,6 +15,11 @@ export default async function AdminLayout({
     redirect("/login")
   }
 
+  // Compter les messages non lus pour la notification
+  const unreadMessagesCount = await prisma.contactMessage.count({
+    where: { status: "UNREAD" }
+  })
+
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col md:flex-row text-white">
       {/* Sidebar */}
@@ -25,21 +31,34 @@ export default async function AdminLayout({
             </h2>
           </Link>
         </div>
-        <nav className="mt-6 flex flex-col space-y-2 px-4">
+        <nav className="mt-6 flex flex-col space-y-2 px-4 pb-10">
           <Link href="/admin" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
             Tableau de bord
+          </Link>
+          <Link href="/admin/messages" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition flex justify-between items-center group">
+            <span>Messages</span>
+            {unreadMessagesCount > 0 && (
+              <span className="bg-white text-black text-[9px] font-black px-2 py-0.5 rounded-full group-hover:scale-110 transition-transform animate-pulse">
+                {unreadMessagesCount}
+              </span>
+            )}
           </Link>
           <Link href="/admin/transfers" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
             Transferts (WeTransfer)
           </Link>
+          <div className="h-px bg-zinc-800 mx-4 my-2"></div>
           <Link href="/admin/clients" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
             Clients
           </Link>
           <Link href="/admin/invoices" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
             Factures & Devis
           </Link>
+          <div className="h-px bg-zinc-800 mx-4 my-2"></div>
           <Link href="/admin/portfolio" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
             Portfolio Public
+          </Link>
+          <Link href="/admin/portfolio/categories" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+            Catégories
           </Link>
           <Link href="/" className="px-4 py-3 rounded text-zinc-500 hover:text-zinc-300 mt-8 block">
             ← Voir le site
@@ -54,7 +73,7 @@ export default async function AdminLayout({
           <div className="flex items-center gap-4">
             <span className="text-zinc-400 text-sm hidden md:inline-block">Connecté en tant que {session?.user?.email}</span>
             <form action="/api/auth/signout" method="POST">
-              <button className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700 transition text-sm">
+              <button className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded hover:bg-zinc-700 transition text-sm font-bold uppercase tracking-widest">
                 Déconnexion
               </button>
             </form>

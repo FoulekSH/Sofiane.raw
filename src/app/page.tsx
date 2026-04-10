@@ -9,7 +9,10 @@ export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const photos = await prisma.photo.findMany({
-    where: { isPublic: true },
+    where: { 
+      isPublic: true,
+      showOnHomePage: true
+    },
     orderBy: { order: 'asc' }
   })
 
@@ -27,7 +30,7 @@ export default async function Home() {
               <ScrollReveal direction="left">
                  <div className="relative aspect-[4/5] overflow-hidden group">
                     <img 
-                      src={`/photos/${featuredPhoto?.filename}`} 
+                      src={`/api/photos/${featuredPhoto?.filename}`} 
                       alt="Featured Work" 
                       className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-105"
                     />

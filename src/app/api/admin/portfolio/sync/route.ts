@@ -28,8 +28,11 @@ export async function POST(req: NextRequest) {
 
   for (let i = 0; i < newPhotos.length; i++) {
     const filename = newPhotos[i]
-    await prisma.photo.create({
-      data: {
+    await prisma.photo.upsert({
+      where: { id: filename }, // On utilise le filename comme ID pour la consistance
+      update: { filename },
+      create: {
+        id: filename,
         filename,
         order: existingPhotos.length + i,
         isPublic: true,

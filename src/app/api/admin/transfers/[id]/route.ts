@@ -14,13 +14,19 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: "ID manquant" }, { status: 400 })
 
   try {
-    const transfer = await prisma.transfer.findUnique({ where: { id } })
+    const transfer = await prisma.transfer.findUnique({ 
+      where: { id },
+      include: { files: true }
+    })
+    
     if (transfer) {
-      const filePath = path.join(process.cwd(), "uploads", "transfers", transfer.filename)
-      try {
-        await unlink(filePath)
-      } catch (err) {
-        console.error("File deletion error (already gone?):", err)
+      for (const file of transfer.files) {
+        const filePath = path.join(process.cwd(), "uploads", "transfers", file.filename)
+        try {
+          await unlink(filePath)
+        } catch (err) {
+          console.error("File deletion error (already gone?):", err)
+        }
       }
       await prisma.transfer.delete({ where: { id } })
     }

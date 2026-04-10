@@ -3,6 +3,17 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
+const DEFAULT_PAYMENT_TERMS = "Virement Bancaire (RIB joint)\nIBAN: FR76 1234 5678 9012 3456 7890 123\nBIC: EXEMPLEXXXX"
+const DEFAULT_FOOTER_NOTES = "Pénalités de retard applicables après l'échéance.\nPas d'escompte pour paiement anticipé.\nLa propriété des clichés est transférée après paiement complet."
+
+const STATUS_MAP: Record<string, { label: string, color: string, bg: string, border: string }> = {
+  "DRAFT": { label: "Brouillon", color: "text-zinc-400", bg: "bg-zinc-900/50", border: "border-zinc-800" },
+  "SENT": { label: "Envoyée", color: "text-blue-400", bg: "bg-blue-900/20", border: "border-blue-800/50" },
+  "TO_PAY": { label: "À payer", color: "text-amber-400", bg: "bg-amber-900/20", border: "border-amber-800/50" },
+  "OVERDUE": { label: "En retard", color: "text-red-400", bg: "bg-red-900/20", border: "border-red-800/50" },
+  "PAID": { label: "Réglée", color: "text-green-400", bg: "bg-green-900/20", border: "border-green-800/50" },
+}
+
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([])
   const [clients, setClients] = useState<any[]>([])
@@ -23,7 +34,9 @@ export default function InvoicesPage() {
     dueDate: "",
     address: "",
     vatRate: 20.0,
-    status: "DRAFT"
+    status: "DRAFT",
+    paymentTerms: DEFAULT_PAYMENT_TERMS,
+    footerNotes: DEFAULT_FOOTER_NOTES
   })
   const [items, setItems] = useState([{ description: "", quantity: 1, price: 0 }])
 
@@ -51,7 +64,6 @@ export default function InvoicesPage() {
       const client = clients.find(c => c.id === formData.clientId)
       if (client) {
         setFormData(prev => {
-          // Only auto-gen invoice num if it's empty
           let newNum = prev.invoiceNum
           if (!newNum) {
             const prefix = client.name.substring(0, 3).toUpperCase()
@@ -106,7 +118,9 @@ export default function InvoicesPage() {
           dueDate: "",
           address: "",
           vatRate: 20.0,
-          status: "DRAFT"
+          status: "DRAFT",
+          paymentTerms: DEFAULT_PAYMENT_TERMS,
+          footerNotes: DEFAULT_FOOTER_NOTES
         })
         fetchInvoices()
       }
@@ -115,6 +129,15 @@ export default function InvoicesPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const updateStatus = async (id: string, status: string) => {
+    const res = await fetch("/api/admin/invoices", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status })
+    })
+    if (res.ok) fetchInvoices()
   }
 
   const deleteInvoice = async (id: string) => {
@@ -128,7 +151,7 @@ export default function InvoicesPage() {
   }
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === invoices.length) setSelectedIds([])
+    if (selectedIds.length === invoices.length && invoices.length > 0) setSelectedIds([])
     else setSelectedIds(invoices.map(i => i.id))
   }
 
@@ -147,7 +170,7 @@ export default function InvoicesPage() {
                onClick={downloadSelected}
                className="bg-zinc-800 text-white px-4 py-2 rounded text-xs uppercase tracking-widest font-bold hover:bg-zinc-700 transition"
              >
-               Télécharger ({selectedIds.length})
+               Imprimer ({selectedIds.length})
              </button>
            )}
            <input 
@@ -212,17 +235,20 @@ export default function InvoicesPage() {
                   />
                </div>
                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Échéance</label>
-                  <input 
-                    type="date" 
-                    value={formData.dueDate}
-                    onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                  <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Statut Initial</label>
+                  <select 
+                    value={formData.status} 
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
                     className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded text-white"
-                    required
-                  />
+                  >
+                    {Object.entries(STATUS_MAP).map(([key, val]) => (
+                      <option key={key} value={key}>{val.label}</option>
+                    ))}
+                  </select>
                </div>
             </div>
 
+            {/* ... rest of form ... */}
             <div className="space-y-2">
                 <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Adresse de facturation client *</label>
                 <textarea 
@@ -278,22 +304,45 @@ export default function InvoicesPage() {
                ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-zinc-800 pt-8">
-               <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">TVA (%)</label>
-                  <input 
-                    type="number" 
-                    value={formData.vatRate}
-                    onChange={(e) => setFormData({...formData, vatRate: parseFloat(e.target.value)})}
-                    className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded text-white"
-                  />
-               </div>
-               <div className="text-right md:col-span-2 flex flex-col justify-end">
-                  <div className="space-y-1 text-sm text-zinc-500">
-                     <p>Sous-total HT: {subtotal.toLocaleString()} €</p>
-                     <p>TVA ({formData.vatRate}%): {vatAmount.toLocaleString()} €</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-zinc-800 pt-8">
+               <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Informations de Paiement</label>
+                    <textarea 
+                      value={formData.paymentTerms}
+                      onChange={(e) => setFormData({...formData, paymentTerms: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded text-white text-xs resize-none"
+                      rows={3}
+                    />
                   </div>
-                  <p className="text-4xl font-light text-white mt-2">{totalAmount.toLocaleString()} € <span className="text-xs uppercase tracking-widest text-zinc-500">TTC</span></p>
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Conditions Générales</label>
+                    <textarea 
+                      value={formData.footerNotes}
+                      onChange={(e) => setFormData({...formData, footerNotes: e.target.value})}
+                      className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded text-white text-xs resize-none"
+                      rows={3}
+                    />
+                  </div>
+               </div>
+               
+               <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">TVA (%)</label>
+                    <input 
+                      type="number" 
+                      value={formData.vatRate}
+                      onChange={(e) => setFormData({...formData, vatRate: parseFloat(e.target.value)})}
+                      className="w-full bg-zinc-950 border border-zinc-800 p-3 rounded text-white"
+                    />
+                  </div>
+                  <div className="text-right">
+                    <div className="space-y-1 text-sm text-zinc-500">
+                      <p>Sous-total HT: {subtotal.toLocaleString()} €</p>
+                      <p>TVA ({formData.vatRate}%): {vatAmount.toLocaleString()} €</p>
+                    </div>
+                    <p className="text-4xl font-light text-white mt-2">{totalAmount.toLocaleString()} € <span className="text-xs uppercase tracking-widest text-zinc-500">TTC</span></p>
+                  </div>
                </div>
             </div>
 
@@ -326,56 +375,71 @@ export default function InvoicesPage() {
               <th className="px-6 py-5">Client</th>
               <th className="px-6 py-5 text-right">Montant TTC</th>
               <th className="px-6 py-5 text-center">Type</th>
+              <th className="px-6 py-5 text-center">Statut</th>
               <th className="px-6 py-5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-zinc-600 italic">Aucun document trouvé.</td>
+                <td colSpan={7} className="px-6 py-12 text-center text-zinc-600 italic">Aucun document trouvé.</td>
               </tr>
             ) : (
-              invoices.map((inv) => (
-                <tr key={inv.id} className={`hover:bg-zinc-800/30 transition duration-300 group ${selectedIds.includes(inv.id) ? 'bg-zinc-800/50' : ''}`}>
-                  <td className="px-6 py-5">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedIds.includes(inv.id)}
-                      onChange={() => toggleSelect(inv.id)}
-                      className="rounded border-zinc-800 bg-zinc-950 text-white focus:ring-0"
-                    />
-                  </td>
-                  <td className="px-6 py-5">
-                    <p className="text-zinc-200 font-medium group-hover:text-white transition">{inv.invoiceNum}</p>
-                    <p className="text-[10px] text-zinc-600 uppercase tracking-widest">{new Date(inv.issueDate).toLocaleDateString()}</p>
-                  </td>
-                  <td className="px-6 py-5">
-                    <p className="text-zinc-400">{inv.client?.name}</p>
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    <p className="text-white font-medium">{inv.totalAmount.toLocaleString()} €</p>
-                  </td>
-                  <td className="px-6 py-5 text-center">
-                    <span className={`text-[9px] uppercase tracking-widest px-2 py-1 rounded-full border ${inv.type === 'QUOTE' ? 'bg-amber-950/20 text-amber-500 border-amber-900/50' : 'bg-blue-950/20 text-blue-500 border-blue-900/50'}`}>
-                      {inv.type === 'QUOTE' ? 'Devis' : 'Facture'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-5 text-right space-x-6">
-                    <Link 
-                      href={`/admin/invoices/${inv.id}`} 
-                      className="text-white hover:underline transition text-[10px] uppercase font-bold tracking-widest"
-                    >
-                      Voir
-                    </Link>
-                    <button 
-                      onClick={() => deleteInvoice(inv.id)}
-                      className="text-red-900 hover:text-red-500 transition text-[10px] uppercase font-bold tracking-widest"
-                    >
-                      Supprimer
-                    </button>
-                  </td>
-                </tr>
-              ))
+              invoices.map((inv) => {
+                const status = STATUS_MAP[inv.status] || STATUS_MAP.DRAFT;
+                return (
+                  <tr key={inv.id} className={`hover:bg-zinc-800/30 transition duration-300 group ${selectedIds.includes(inv.id) ? 'bg-zinc-800/50' : ''}`}>
+                    <td className="px-6 py-5">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedIds.includes(inv.id)}
+                        onChange={() => toggleSelect(inv.id)}
+                        className="rounded border-zinc-800 bg-zinc-950 text-white focus:ring-0"
+                      />
+                    </td>
+                    <td className="px-6 py-5">
+                      <p className="text-zinc-200 font-medium group-hover:text-white transition">{inv.invoiceNum}</p>
+                      <p className="text-[10px] text-zinc-600 uppercase tracking-widest">{new Date(inv.issueDate).toLocaleDateString()}</p>
+                    </td>
+                    <td className="px-6 py-5">
+                      <p className="text-zinc-400">{inv.client?.name}</p>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <p className="text-white font-medium">{inv.totalAmount.toLocaleString()} €</p>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <span className={`text-[9px] uppercase tracking-widest px-2 py-1 rounded-full border ${inv.type === 'QUOTE' ? 'bg-amber-950/20 text-amber-500 border-amber-900/50' : 'bg-blue-950/20 text-blue-500 border-blue-900/50'}`}>
+                        {inv.type === 'QUOTE' ? 'Devis' : 'Facture'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <select 
+                        value={inv.status}
+                        onChange={(e) => updateStatus(inv.id, e.target.value)}
+                        className={`text-[9px] uppercase tracking-widest px-3 py-1.5 rounded-full border cursor-pointer font-bold outline-none ${status.bg} ${status.color} ${status.border}`}
+                      >
+                        {Object.entries(STATUS_MAP).map(([key, val]) => (
+                          <option key={key} value={key} className="bg-zinc-950 text-white">{val.label}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-5 text-right space-x-6">
+                      <Link 
+                        href={`/admin/invoices/${inv.id}`} 
+                        className="text-white hover:underline transition text-[10px] uppercase font-bold tracking-widest"
+                      >
+                        Voir
+                      </Link>
+                      <button 
+                        onClick={() => deleteInvoice(inv.id)}
+                        className="text-red-900 hover:text-red-500 transition text-[10px] uppercase font-bold tracking-widest"
+                      >
+                        Supprimer
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>

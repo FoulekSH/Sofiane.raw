@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/prisma"
+import fs from "fs/promises"
+import path from "path"
 
 export async function GET() {
   const photos = await prisma.photo.findMany({
@@ -15,10 +17,10 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
 
   try {
-    const { id, isPublic, isFeatured, order, category, title } = await req.json()
+    const { id, isPublic, isFeatured, showOnHomePage, order, category, title } = await req.json()
     const updatedPhoto = await prisma.photo.update({
       where: { id },
-      data: { isPublic, isFeatured, order, category, title }
+      data: { isPublic, isFeatured, showOnHomePage, order, category, title }
     })
     return NextResponse.json(updatedPhoto)
   } catch (error) {
@@ -31,13 +33,35 @@ export async function DELETE(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
-  const id = searchParams.get("id")
+  const idsParam = searchParams.get("ids") || searchParams.get("id")
 
-  if (!id) return NextResponse.json({ error: "ID manquant" }, { status: 400 })
+  if (!idsParam) return NextResponse.json({ error: "ID manquant" }, { status: 400 })
+
+  const ids = idsParam.split(",")
 
   try {
-    await prisma.photo.delete({ where: { id } })
-    return NextResponse.json({ success: true })
+    // Récupérer les noms de fichiers avant de supprimer de la DB
+    const photosToDelete = await prisma.photo.findMany({
+      where: { id: { in: ids } },
+      select: { filename: true }
+    })
+
+    // Supprimer de la DB
+    await prisma.photo.deleteMany({
+      where: { id: { in: ids } }
+    })
+
+    // Supprimer les fichiers physiques
+    const photosDir = path.join(process.cwd(), "public", "photos")
+    for (const photo of photosToDelete) {
+      try {
+        await fs.unlink(path.join(photosDir, photo.filename))
+      } catch (err) {
+        console.error(`Erreur lors de la suppression du fichier ${photo.filename}:`, err)
+      }
+    }
+
+    return NextResponse.json({ success: true, count: ids.length })
   } catch (error) {
     return NextResponse.json({ error: "Erreur lors de la suppression" }, { status: 500 })
   }

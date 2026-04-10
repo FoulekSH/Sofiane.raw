@@ -1,60 +1,176 @@
-import prisma from "@/lib/prisma"
-import { notFound } from "next/navigation"
+"use client"
 
-export default async function DownloadPage({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params
+import { useState, useEffect } from "react"
+import { useParams } from "next/navigation"
 
-  const transfer = await prisma.transfer.findUnique({
-    where: { token },
-    include: { client: true }
-  })
+export default function DownloadPage() {
+  const { token } = useParams()
+  const [transfer, setTransfer] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
 
-  if (!transfer) {
-    notFound()
+  useEffect(() => {
+    fetch(`/api/admin/transfers?id=${token}`)
+      .then(res => res.json())
+      .then(data => {
+        const t = Array.isArray(data) ? data.find((x: any) => x.token === token) : data
+        setTransfer(t)
+        if (!t?.password) setIsUnlocked(true)
+        if (t?.files) setSelectedFiles(t.files.map((f: any) => f.id))
+        setLoading(false)
+      })
+  }, [token])
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password === transfer.password) {
+      setIsUnlocked(true)
+      setError("")
+    } else {
+      setError("Mot de passe incorrect")
+    }
   }
 
+  const toggleFile = (id: string) => {
+    setSelectedFiles(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
+  }
+
+  const downloadAllSelected = () => {
+    selectedFiles.forEach((fileId, index) => {
+      // Small delay to avoid browser blocking multiple downloads
+      setTimeout(() => {
+        const link = document.createElement("a")
+        link.href = `/api/transfers/download/${token}?fileId=${fileId}`
+        link.download = "" // Browser will use Content-Disposition filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }, index * 500)
+    })
+  }
+
+  const downloadOne = (fileId: string) => {
+    const link = document.createElement("a")
+    link.href = `/api/transfers/download/${token}?fileId=${fileId}`
+    link.click()
+  }
+
+  if (loading) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">Chargement...</div>
+  if (!transfer) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">Transfert introuvable</div>
+
   const isExpired = new Date(transfer.expiresAt) < new Date()
+  const totalSize = transfer.files?.reduce((sum: number, f: any) => sum + f.size, 0) || 0
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 text-white">
-      <div className="w-full max-w-xl bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl text-center space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-light tracking-widest">SOFIANE <span className="font-bold">RAW</span></h1>
-          <p className="text-zinc-500 text-xs uppercase tracking-widest">Partage de fichiers sécurisé</p>
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 text-white font-sans">
+      <div className="w-full max-w-2xl bg-zinc-900 border border-zinc-800 p-10 rounded-3xl shadow-2xl text-center space-y-10">
+        <div className="space-y-3">
+          <h1 className="text-3xl font-light tracking-[0.3em] uppercase text-white">SOFIANE <span className="font-black italic">RAW</span></h1>
+          <div className="h-px w-12 bg-zinc-700 mx-auto"></div>
+          <p className="text-zinc-500 text-[10px] uppercase tracking-[0.4em] font-bold">Secure Delivery System</p>
         </div>
 
         {isExpired ? (
-          <div className="py-12 space-y-4">
-            <div className="text-red-500 text-5xl">⚠</div>
-            <h2 className="text-xl font-medium">Lien expiré</h2>
-            <p className="text-zinc-400">Ce lien de téléchargement n'est plus valide. Veuillez contacter le photographe pour un nouveau lien.</p>
+          <div className="py-12 space-y-6">
+            <div className="text-red-500/20 text-8xl">⚠</div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold uppercase tracking-widest">Lien expiré</h2>
+              <p className="text-zinc-500 text-sm leading-relaxed">Ce lien de téléchargement n'est plus valide.<br />Merci de contacter le studio pour un nouvel accès.</p>
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="py-6 border-y border-zinc-800 space-y-4">
-              <div className="text-zinc-400 text-sm uppercase">Fichier prêt pour :</div>
-              <div className="text-2xl font-light">{transfer.client?.name || "Client"}</div>
-              
-              <div className="bg-zinc-950 p-6 rounded-lg border border-zinc-800 mt-6 inline-block w-full">
-                 <p className="text-lg font-medium truncate mb-1">{transfer.originalName}</p>
-                 <p className="text-zinc-500 text-sm">{(transfer.size / (1024 * 1024)).toFixed(2)} Mo • Expire le {new Date(transfer.expiresAt).toLocaleDateString()}</p>
+        ) : !isUnlocked ? (
+          <form onSubmit={handleUnlock} className="py-10 space-y-8 animate-in fade-in zoom-in duration-500">
+            <div className="space-y-4">
+              <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
               </div>
+              <h2 className="text-lg font-bold uppercase tracking-widest">Accès Protégé</h2>
+              <p className="text-zinc-500 text-xs uppercase tracking-widest">Veuillez saisir le mot de passe pour accéder aux fichiers</p>
+            </div>
+            
+            <div className="space-y-4 max-w-sm mx-auto">
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="MOT DE PASSE"
+                className="w-full bg-zinc-950 border border-zinc-800 p-4 rounded-xl text-center text-sm tracking-widest focus:border-white transition-all outline-none"
+                required
+              />
+              {error && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest">{error}</p>}
+              <button 
+                type="submit"
+                className="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-zinc-200 transition-all uppercase tracking-[0.2em] text-xs shadow-xl"
+              >
+                Déverrouiller
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-8">
+            <div className="py-4 border-y border-zinc-800/50 space-y-2">
+              <p className="text-zinc-500 text-[9px] uppercase tracking-[0.3em] font-bold">Destinataire</p>
+              <div className="text-2xl font-light tracking-tight">{transfer.client?.name || "Client Privé"}</div>
+              <p className="text-zinc-600 text-[9px] uppercase font-bold tracking-widest italic">Expire le {new Date(transfer.expiresAt).toLocaleDateString()}</p>
             </div>
 
-            <div className="space-y-4">
-              <a 
-                href={`/api/transfers/download/${token}`}
-                className="block w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-zinc-200 transition duration-300 transform hover:scale-[1.02]"
-              >
-                TÉLÉCHARGER LE FICHIER
-              </a>
-              <p className="text-zinc-500 text-xs">Le téléchargement commencera instantanément.</p>
+            <div className="space-y-4 text-left">
+               <div className="flex justify-between items-center px-4">
+                  <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">{transfer.files?.length} Fichier(s) • {(totalSize / 1024 / 1024).toFixed(2)} MB</h3>
+                  <button 
+                    onClick={() => setSelectedFiles(selectedFiles.length === transfer.files.length ? [] : transfer.files.map((f: any) => f.id))}
+                    className="text-[9px] uppercase tracking-widest text-zinc-400 hover:text-white transition"
+                  >
+                    {selectedFiles.length === transfer.files.length ? "Tout désélectionner" : "Tout sélectionner"}
+                  </button>
+               </div>
+
+               <div className="bg-zinc-950 rounded-2xl border border-zinc-800/50 divide-y divide-zinc-900 overflow-hidden">
+                  {transfer.files?.map((file: any) => (
+                    <div key={file.id} className="p-4 flex items-center justify-between hover:bg-zinc-900/50 transition group">
+                       <div className="flex items-center gap-4 flex-1 min-w-0">
+                          <input 
+                            type="checkbox"
+                            checked={selectedFiles.includes(file.id)}
+                            onChange={() => toggleFile(file.id)}
+                            className="w-4 h-4 rounded border-zinc-800 bg-zinc-900 text-white focus:ring-0"
+                          />
+                          <div className="truncate pr-4">
+                             <p className="text-xs font-bold text-white truncate uppercase tracking-widest">{file.originalName}</p>
+                             <p className="text-[9px] text-zinc-600">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                       </div>
+                       <button 
+                         onClick={() => downloadOne(file.id)}
+                         className="p-2 bg-zinc-900 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition"
+                       >
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                       </button>
+                    </div>
+                  ))}
+               </div>
             </div>
-          </>
+
+            <div className="pt-6 space-y-6">
+              <button 
+                onClick={downloadAllSelected}
+                disabled={selectedFiles.length === 0}
+                className="block w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 transform hover:scale-[1.02] uppercase tracking-[0.3em] text-xs shadow-2xl shadow-white/5"
+              >
+                Télécharger la sélection ({selectedFiles.length})
+              </button>
+              <p className="text-zinc-600 text-[9px] uppercase tracking-widest font-bold">Les fichiers seront téléchargés individuellement sans compression ZIP.</p>
+            </div>
+          </div>
         )}
 
-        <div className="pt-8 text-zinc-600 text-xs border-t border-zinc-800">
-          © {new Date().getFullYear()} Sofiane Raw • Tous droits réservés
+        <div className="pt-8 text-zinc-700 text-[8px] uppercase tracking-[0.4em] font-bold border-t border-zinc-800/30">
+          © {new Date().getFullYear()} Sofiane Raw Studio • Prestige Photography
         </div>
       </div>
     </div>

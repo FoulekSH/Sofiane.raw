@@ -24,7 +24,7 @@ export default function Gallery({ photos }: { photos: string[] }) {
             onClick={() => setSelectedPhoto(photo)}
           >
             <motion.img
-              src={`/photos/${photo}`}
+              src={`/api/photos/${photo}`}
               alt={`Gallery image ${index + 1}`}
               className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 ease-in-out group-hover:scale-105"
               loading="lazy"
@@ -45,7 +45,7 @@ export default function Gallery({ photos }: { photos: string[] }) {
           <motion.img 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            src={`/photos/${selectedPhoto}`} 
+            src={`/api/photos/${selectedPhoto}`} 
             className="max-w-full max-h-full object-contain shadow-2xl"
           />
           <button className="absolute top-8 right-8 text-white text-3xl font-light">&times;</button>
