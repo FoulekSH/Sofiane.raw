@@ -4,12 +4,12 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 
 const categoriesList = [
+  { slug: "editorial", name: "Mode / Éditorial", fallback: "1775763682718_A7401270.jpg" },
+  { slug: "branding", name: "Branding / Content", fallback: "1775763682736_A7401359.jpg" },
+  { slug: "event", name: "Événementiel", fallback: "1775763682732_A7401341.jpg" },
   { slug: "sport", name: "Sport", fallback: "A7400010.jpg" },
-  { slug: "portrait", name: "Portrait", fallback: "A7400028.jpg" },
-  { slug: "event", name: "Événementiel", fallback: "A7400340-2.jpg" },
-  { slug: "lifestyle", name: "Lifestyle", fallback: "A7400344.jpg" },
+  { slug: "portrait", name: "Portraits", fallback: "A7400028.jpg" },
   { slug: "auto", name: "Automobile", fallback: "A7400737.jpg" },
-  { slug: "mariage", name: "Mariage", fallback: "A7400998.jpg" },
 ]
 
 export default function CategoryCarousel() {
@@ -42,10 +42,11 @@ export default function CategoryCarousel() {
                 <img 
                   src={`/api/photos/${image}`} 
                   alt={cat.name}
-                  className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
+                  className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110 pointer-events-none select-none"
+                  onContextMenu={(e) => e.preventDefault()}
                 />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-all duration-700" />
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-all duration-700 z-10" onContextMenu={(e) => e.preventDefault()} />
+                <div className="absolute inset-0 flex items-center justify-center z-20">
                   <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold text-white group-hover:scale-110 transition-transform duration-700">
                     {cat.name}
                   </span>

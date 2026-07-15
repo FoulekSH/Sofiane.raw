@@ -18,67 +18,68 @@ model User {
 }
 
 model Client {
-  id        String    @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
-  email     String?   @unique
+  email     String?    @unique
   phone     String?
   company   String?
   address   String?
   notes     String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  siret     String?
   invoices  Invoice[]
   transfers Transfer[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 }
 
 model Invoice {
-  id          String   @id @default(cuid())
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id])
-  type        String   @default("INVOICE") // INVOICE, QUOTE
-  invoiceNum  String   @unique
-  issueDate   DateTime @default(now())
-  dueDate     DateTime?
-  address     String?  // Client address at the time of invoice
-  vatRate     Float    @default(20.0)
-  vatAmount   Float    @default(0.0)
-  totalAmount Float    // Total with VAT
-  status      String   @default("DRAFT") // DRAFT, SENT, PAID, CANCELLED
-  items       String   // JSON stringified array of items: { description, quantity, price }
-  paymentTerms String?  // Informations de paiement personnalisées
-  footerNotes  String?  // Conditions générales ou notes personnalisées
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String    @id @default(cuid())
+  clientId     String
+  type         String    @default("INVOICE")
+  invoiceNum   String    @unique
+  issueDate    DateTime  @default(now())
+  dueDate      DateTime?
+  address      String?
+  vatRate      Float     @default(20.0)
+  vatAmount    Float     @default(0.0)
+  totalAmount  Float
+  status       String    @default("DRAFT")
+  items        String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  footerNotes  String?
+  paymentTerms String?
+  client       Client    @relation(fields: [clientId], references: [id])
 }
 
 model Transfer {
-  id          String   @id @default(cuid())
-  token       String   @unique
-  files       TransferFile[]
-  expiresAt   DateTime
-  downloads   Int      @default(0)
-  password    String?  // Mot de passe optionnel
-  clientId    String?
-  client      Client?  @relation(fields: [clientId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String         @id @default(cuid())
+  token     String         @unique
+  expiresAt DateTime
+  downloads Int            @default(0)
+  password  String?
+  clientId  String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  client    Client?        @relation(fields: [clientId], references: [id])
+  files     TransferFile[]
 }
 
 model TransferFile {
   id           String   @id @default(cuid())
   transferId   String
-  transfer     Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
   filename     String
   originalName String
   size         Int
   createdAt    DateTime @default(now())
+  transfer     Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
 }
 
 model CategoryConfig {
   id          String   @id @default(cuid())
-  name        String   @unique // Sport, Portrait, etc.
+  name        String   @unique
   slug        String   @unique
-  coverImage  String?  // Nom du fichier de l'image de couverture
+  coverImage  String?
   description String?
   updatedAt   DateTime @updatedAt
 }
@@ -89,7 +90,7 @@ model ContactMessage {
   email     String
   subject   String?
   message   String
-  status    String   @default("UNREAD") // UNREAD, READ, ARCHIVED
+  status    String   @default("UNREAD")
   createdAt DateTime @default(now())
 }
 
@@ -98,11 +99,19 @@ model Photo {
   filename       String
   title          String?
   description    String?
-  category       String   @default("Portfolio") // Portrait, Mariage, Mode, Portfolio
+  category       String   @default("Portfolio")
   order          Int      @default(0)
   isPublic       Boolean  @default(true)
   showOnHomePage Boolean  @default(true)
   isFeatured     Boolean  @default(false)
+  isHero         Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
 }

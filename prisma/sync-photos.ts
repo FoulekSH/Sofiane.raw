@@ -18,8 +18,16 @@ async function main() {
 
   console.log(`Found ${photos.length} photos in public/photos. Syncing with database...`)
 
+  const existingPhotos = await prisma.photo.findMany({
+    select: { filename: true, order: true }
+  })
+  const existingFilenames = new Set(existingPhotos.map(p => p.filename))
+  const maxOrder = Math.max(0, ...existingPhotos.map(p => p.order))
+
   for (let i = 0; i < photos.length; i++) {
     const filename = photos[i]
+    if (existingFilenames.has(filename)) continue;
+
     await prisma.photo.upsert({
       where: { id: filename }, // Use filename as ID directly
       update: {
@@ -28,9 +36,9 @@ async function main() {
       create: {
         id: filename,
         filename,
-        order: i,
+        order: maxOrder + 1 + i,
         isPublic: true,
-        isFeatured: i === 0, // Make the first one featured
+        isFeatured: false,
       },
     })
   }

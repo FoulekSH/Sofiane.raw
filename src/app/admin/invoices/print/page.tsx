@@ -2,9 +2,6 @@ import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import PrintActions from "@/components/PrintActions"
 
-const DEFAULT_PAYMENT_TERMS = "Virement Bancaire (RIB joint)\nIBAN: FR76 1234 5678 9012 3456 7890 123\nBIC: EXEMPLEXXXX"
-const DEFAULT_FOOTER_NOTES = "Pénalités de retard applicables après l'échéance.\nPas d'escompte pour paiement anticipé.\nLa propriété des clichés est transférée après paiement complet."
-
 export default async function PrintInvoicesPage({ searchParams }: { searchParams: Promise<{ ids: string }> }) {
   const { ids } = await searchParams
   
@@ -16,6 +13,22 @@ export default async function PrintInvoicesPage({ searchParams }: { searchParams
     where: { id: { in: idArray } },
     include: { client: true }
   })
+
+  const settingsRaw = await prisma.settings.findUnique({ where: { key: "invoice_defaults" } })
+  const settings = settingsRaw ? JSON.parse(settingsRaw.value) : {
+    companyName: "SOFIANE RAW",
+    serviceTagline: "Photographie de Prestige",
+    website: "www.sofiane-raw.com",
+    email: "contact@sofiane.raw",
+    phone: "",
+    address: "51 RUE DE LA PHOTOGRAPHIE, 75008 PARIS",
+    siret: "123 456 789 00012",
+    bankHolder: "SOFIANE RAW",
+    iban: "FR76 1234 5678 9012 3456 7890 123",
+    bic: "EXEMPLEXXXX",
+    defaultPaymentTerms: "Virement Bancaire (RIB joint)",
+    defaultFooterNotes: "Pénalités de retard applicables après l'échéance."
+  }
 
   if (invoices.length === 0) return notFound()
 
@@ -32,20 +45,21 @@ export default async function PrintInvoicesPage({ searchParams }: { searchParams
               {/* Header */}
               <div className="header">
                 <div className="brand">
-                  <h1 className="text-black">SOFIANE <span className="italic font-light">RAW</span></h1>
-                  <p className="subtitle">Photographie de Prestige</p>
-                  <div className="my-info">
-                    <p>51 RUE DE LA PHOTOGRAPHIE</p>
-                    <p>75008 PARIS, FRANCE</p>
-                    <p>SIRET: 123 456 789 00012</p>
-                    <p>CONTACT@SOFIANE.RAW</p>
+                  <h1 className="text-black uppercase tracking-widest">{settings.companyName || "SOFIANE RAW"}</h1>
+                  <p className="subtitle">{settings.serviceTagline || "Photographie de Prestige"}</p>
+                  <div className="my-info mt-8 space-y-1">
+                    {settings.website && <p>{settings.website}</p>}
+                    {settings.email && <p>{settings.email}</p>}
+                    {settings.phone && <p>{settings.phone}</p>}
                   </div>
                 </div>
                 
                 <div className="doc-info">
-                  <h2 className="text-black font-bold">{invoice.type === 'QUOTE' ? 'DEVIS' : 'FACTURE'}</h2>
+                  <h2 className="text-black font-bold">{invoice.type === 'QUOTE' ? 'DEVIS' : 'FACTURE'} {invoice.invoiceNum}</h2>
                   <div className="info-grid mt-4">
-                    <p><span>N° DOCUMENT</span> <strong>{invoice.invoiceNum}</strong></p>
+                    <p className="justify-end gap-4">
+                      <span className="text-[7pt]">56, Rue Philippe Dartis, 95210 Saint-Gratien</span>
+                    </p>
                     <p><span>DATE D'ÉMISSION</span> <strong>{new Date(invoice.issueDate).toLocaleDateString('fr-FR')}</strong></p>
                     {invoice.dueDate && (
                       <p><span>DATE D'ÉCHÉANCE</span> <strong>{new Date(invoice.dueDate).toLocaleDateString('fr-FR')}</strong></p>
@@ -56,34 +70,41 @@ export default async function PrintInvoicesPage({ searchParams }: { searchParams
 
               {/* Client & Content Wrapper */}
               <div className="main-content">
-                <div className="client-section">
-                  <p className="label">CLIENT</p>
-                  <div className="client-details">
-                     <h3>{invoice.client?.name}</h3>
-                     {invoice.client?.company && <p className="company">{invoice.client.company}</p>}
-                     <p className="address">{invoice.address || invoice.client?.address}</p>
-                     {invoice.client?.email && <p className="email">{invoice.client.email}</p>}
+                <div className="client-section flex justify-between items-start">
+                  <div>
+                    <p className="label">FACTURÉ À</p>
+                    <div className="client-details">
+                       <h3>{invoice.client?.name}</h3>
+                       <p className="address">{invoice.address || invoice.client?.address}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="label">SIRET CLIENT</p>
+                    <p className="text-sm font-bold">{invoice.client?.siret || "N/A"}</p>
                   </div>
                 </div>
 
                 {/* Table */}
-                <div className="table-container">
+                <div className="table-container mt-10">
                   <table className="invoice-table">
                     <thead>
                       <tr>
-                        <th className="text-left">Désignation des prestations</th>
-                        <th className="text-center">Qté</th>
-                        <th className="text-right">Prix Unit. HT</th>
-                        <th className="text-right">Montant HT</th>
+                        <th className="text-left py-4">SERVICE</th>
+                        <th className="text-center py-4">QTÉ</th>
+                        <th className="text-right py-4">PRIX</th>
+                        <th className="text-right py-4">TOTAL</th>
                       </tr>
                     </thead>
                     <tbody>
                       {items.map((item: any, idx: number) => (
                         <tr key={idx}>
-                          <td className="font-medium">{item.description}</td>
-                          <td className="text-center">{item.quantity}</td>
-                          <td className="text-right">{item.price.toLocaleString('fr-FR')} €</td>
-                          <td className="text-right">{(item.quantity * item.price).toLocaleString('fr-FR')} €</td>
+                          <td className="py-6">
+                            <div className="font-bold uppercase text-[9pt]">{item.description}</div>
+                            <div className="text-[7pt] text-zinc-400 mt-1 uppercase">FEVRIER 2025</div>
+                          </td>
+                          <td className="text-center font-light">{item.quantity}</td>
+                          <td className="text-right font-light">{item.price.toLocaleString('fr-FR')}€</td>
+                          <td className="text-right font-light">{(item.quantity * item.price).toLocaleString('fr-FR')}€</td>
                         </tr>
                       ))}
                     </tbody>
@@ -91,43 +112,28 @@ export default async function PrintInvoicesPage({ searchParams }: { searchParams
                 </div>
 
                 {/* Totals Section */}
-                <div className="totals-section">
+                <div className="totals-section mt-10">
                   <div className="spacer"></div>
-                  <div className="totals-box">
-                     <div className="total-row">
-                        <span>TOTAL HORS TAXES</span>
-                        <span>{subtotal.toLocaleString('fr-FR')} €</span>
-                     </div>
-                     <div className="total-row">
-                        <span>TVA ({invoice.vatRate}%)</span>
-                        <span>{vatAmount.toLocaleString('fr-FR')} €</span>
-                     </div>
-                     <div className="total-row grand-total bg-black text-white px-4 py-3 mt-4">
-                        <span className="font-bold">TOTAL TTC À PAYER</span>
-                        <span className="font-bold text-xl">{invoice.totalAmount.toLocaleString('fr-FR')} €</span>
+                  <div className="totals-box border-t-2 border-black pt-4">
+                     <div className="flex justify-between items-center px-4">
+                        <span className="text-[10pt] font-bold uppercase tracking-widest">TOTAL</span>
+                        <span className="text-[14pt] font-black">{invoice.totalAmount.toLocaleString('fr-FR')}€</span>
                      </div>
                   </div>
                 </div>
               </div>
 
               {/* Footer Footer */}
-              <div className="footer-area">
-                <div className="footer-notes">
-                  <div className="payment-info">
-                    <p className="footer-label">Informations de Paiement</p>
-                    <div className="footer-text whitespace-pre-line">
-                      {invoice.paymentTerms || DEFAULT_PAYMENT_TERMS}
-                    </div>
+              <div className="footer-area mt-20">
+                <div className="flex justify-between items-end border-t border-zinc-100 pt-10">
+                  <div className="bank-info space-y-1">
+                    <p className="text-[8pt] font-bold uppercase tracking-widest mb-3">RIB = {settings.bankHolder || settings.companyName}</p>
+                    <p className="text-[8pt] text-zinc-500">IBAN : {settings.iban}</p>
+                    <p className="text-[8pt] text-zinc-500">BIC : {settings.bic}</p>
                   </div>
-                  <div className="terms-info">
-                    <p className="footer-label">Conditions Générales</p>
-                    <div className="footer-text whitespace-pre-line">
-                      {invoice.footerNotes || DEFAULT_FOOTER_NOTES}
-                    </div>
+                  <div className="company-seal text-right">
+                    <h4 className="text-xl font-black tracking-tighter">{settings.companyName}</h4>
                   </div>
-                </div>
-                <div className="bottom-bar text-center mt-10 pt-4 border-t border-zinc-100">
-                   <p className="text-[7pt] text-zinc-400 uppercase tracking-widest">Sofiane Raw - Photographe Haute Couture - www.sofiane-raw.com</p>
                 </div>
               </div>
             </div>

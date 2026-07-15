@@ -17,10 +17,27 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
 
   try {
-    const { id, isPublic, isFeatured, showOnHomePage, order, category, title } = await req.json()
+    const { id, isPublic, isFeatured, isHero, showOnHomePage, order, category, title, description } = await req.json()
+    
+    // Si on active le "isFeatured", on désactive d'abord tous les autres
+    if (isFeatured === true) {
+      await prisma.photo.updateMany({
+        where: { isFeatured: true },
+        data: { isFeatured: false }
+      })
+    }
+
+    // Si on active le "isHero", on désactive d'abord tous les autres
+    if (isHero === true) {
+      await prisma.photo.updateMany({
+        where: { isHero: true },
+        data: { isHero: false }
+      })
+    }
+
     const updatedPhoto = await prisma.photo.update({
       where: { id },
-      data: { isPublic, isFeatured, showOnHomePage, order, category, title }
+      data: { isPublic, isFeatured, isHero, showOnHomePage, order, category, title, description }
     })
     return NextResponse.json(updatedPhoto)
   } catch (error) {

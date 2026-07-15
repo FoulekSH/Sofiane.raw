@@ -25,3 +25,19 @@ h1, h2, h3, .font-serif {
   transform: translateY(0);
   transition: transform 0.1s ease-out;
 }
+
+/* Protection des images */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-touch-callout: none;
+}

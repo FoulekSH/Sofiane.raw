@@ -16,6 +16,7 @@ export default function ClientsPage() {
     phone: "",
     company: "",
     address: "",
+    siret: "",
     notes: ""
   })
 
@@ -48,7 +49,7 @@ export default function ClientsPage() {
       })
 
       if (res.ok) {
-        setFormData({ name: "", email: "", phone: "", company: "", address: "", notes: "" })
+        setFormData({ name: "", email: "", phone: "", company: "", address: "", siret: "", notes: "" })
         setEditingClient(null)
         fetchClients()
       }
@@ -67,6 +68,7 @@ export default function ClientsPage() {
       phone: client.phone || "",
       company: client.company || "",
       address: client.address || "",
+      siret: client.siret || "",
       notes: client.notes || ""
     })
     window.scrollTo({ top: 0, behavior: "smooth" })
@@ -124,12 +126,22 @@ export default function ClientsPage() {
               </div>
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-1 font-bold">Entreprise</label>
-                <input 
-                  type="text" 
-                  value={formData.company}
-                  onChange={(e) => setFormData({...formData, company: e.target.value})}
-                  className="w-full bg-zinc-950 border border-zinc-800 px-4 py-2 rounded text-white focus:border-white transition"
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <input 
+                    type="text" 
+                    placeholder="Nom société"
+                    value={formData.company}
+                    onChange={(e) => setFormData({...formData, company: e.target.value})}
+                    className="w-full bg-zinc-950 border border-zinc-800 px-4 py-2 rounded text-white focus:border-white transition"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="SIRET"
+                    value={formData.siret}
+                    onChange={(e) => setFormData({...formData, siret: e.target.value})}
+                    className="w-full bg-zinc-950 border border-zinc-800 px-4 py-2 rounded text-white focus:border-white transition"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-zinc-500 mb-1 font-bold">Adresse légale</label>
@@ -163,7 +175,7 @@ export default function ClientsPage() {
                     type="button"
                     onClick={() => {
                       setEditingClient(null)
-                      setFormData({ name: "", email: "", phone: "", company: "", address: "", notes: "" })
+                      setFormData({ name: "", email: "", phone: "", company: "", address: "", siret: "", notes: "" })
                     }}
                     className="px-6 bg-zinc-800 text-white rounded-full hover:bg-zinc-700 transition"
                   >

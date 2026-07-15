@@ -4,12 +4,12 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 
 const categories = [
-  { name: "Sport", slug: "sport" },
-  { name: "Portrait", slug: "portrait" },
+  { name: "Mode / Éditorial", slug: "editorial" },
+  { name: "Branding / Content", slug: "branding" },
   { name: "Événementiel", slug: "event" },
-  { name: "Lifestyle", slug: "lifestyle" },
+  { name: "Sport", slug: "sport" },
+  { name: "Portraits", slug: "portrait" },
   { name: "Automobile", slug: "auto" },
-  { name: "Mariage", slug: "mariage" },
 ]
 
 export default function CategoryAdmin() {

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 
-export default function Hero({ photo }: { photo: string }) {
+export default function Hero({ photo }: { photo?: string }) {
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Zoom / Ken Burns Effect */}
@@ -12,18 +12,24 @@ export default function Hero({ photo }: { photo: string }) {
         transition={{ duration: 3, ease: "easeOut" }}
         className="absolute inset-0 z-0"
       >
-        {photo && (
+        {photo ? (
           <img 
-            src={`/photos/${photo}`} 
+            src={`/api/photos/${photo}`} 
             alt="Hero Cinematic" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-[center_25%] md:object-center pointer-events-none select-none"
+            onContextMenu={(e) => e.preventDefault()}
           />
+        ) : (
+          <div className="w-full h-full bg-zinc-900" />
         )}
       </motion.div>
 
+      {/* Protective Overlay for Hero */}
+      <div className="absolute inset-0 z-[1] select-none" onContextMenu={(e) => e.preventDefault()}></div>
+
       {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/80 via-transparent to-zinc-950"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-transparent to-zinc-950 opacity-40"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/80 via-transparent to-zinc-950 z-[2]"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-transparent to-zinc-950 opacity-40 z-[2]"></div>
 
       <div className="relative z-10 text-center px-4 space-y-12">
         <div className="overflow-hidden">
@@ -33,7 +39,7 @@ export default function Hero({ photo }: { photo: string }) {
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
             className="text-7xl md:text-[14rem] font-bold tracking-tighter leading-[0.8] bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-400 to-amber-200"
           >
-            SOFIANE <br /> <span className="font-light italic ml-12 md:ml-32 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-600">RAW</span>
+            SOFIANE <br /> <span className="font-light italic ml-12 md:ml-32 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-600">.RAW</span>
           </motion.h1>
         </div>
 
@@ -44,12 +50,12 @@ export default function Hero({ photo }: { photo: string }) {
           className="flex flex-col items-center gap-8"
         >
           <p className="text-zinc-500 text-xs md:text-sm tracking-[0.8em] uppercase font-bold">
-            Fine Art & Cinematic Photography
+            Créateur d'images
           </p>
           
           <div className="pt-8">
             <a href="#contact" className="px-12 py-5 bg-white text-black text-[10px] uppercase tracking-[0.4em] font-bold rounded-full hover:bg-zinc-200 transition-all duration-500 transform hover:scale-105">
-              Book a Session
+              Réserver une séance
             </a>
           </div>
         </motion.div>
@@ -66,7 +72,7 @@ export default function Hero({ photo }: { photo: string }) {
       </div>
 
       <div className="absolute top-12 left-12 hidden md:block">
-         <p className="text-[9px] text-zinc-800 uppercase tracking-[0.4em]">Portfolio v1.0</p>
+         <p className="text-[9px] text-zinc-800 uppercase tracking-[0.4em]"></p>
       </div>
       <div className="absolute top-12 right-12 hidden md:block">
          <p className="text-[9px] text-zinc-800 uppercase tracking-[0.4em]">Paris / Worldwide</p>

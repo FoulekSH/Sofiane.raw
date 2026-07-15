@@ -27,14 +27,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="dark">
-      <head>
+      <body className={`${inter.variable} ${playfair.variable} font-sans bg-zinc-950 text-zinc-50 antialiased`}>
+        <AuthProvider>{children}</AuthProvider>
         <Script 
           src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" 
           strategy="lazyOnload"
         />
-      </head>
-      <body className={`${inter.variable} ${playfair.variable} font-sans bg-zinc-950 text-zinc-50 antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   )

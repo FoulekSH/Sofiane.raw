@@ -32,11 +32,11 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
 
   try {
-    const { name, email, phone, company, address, notes } = await req.json()
+    const { name, email, phone, company, address, siret, notes } = await req.json()
     if (!name) return NextResponse.json({ error: "Le nom est obligatoire" }, { status: 400 })
 
     const client = await prisma.client.create({
-      data: { name, email, phone, company, address, notes }
+      data: { name, email, phone, company, address, siret, notes }
     })
     return NextResponse.json(client)
   } catch (error) {
@@ -49,12 +49,12 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 })
 
   try {
-    const { id, name, email, phone, company, address, notes } = await req.json()
+    const { id, name, email, phone, company, address, siret, notes } = await req.json()
     if (!id) return NextResponse.json({ error: "ID manquant" }, { status: 400 })
 
     const client = await prisma.client.update({
       where: { id },
-      data: { name, email, phone, company, address, notes }
+      data: { name, email, phone, company, address, siret, notes }
     })
     return NextResponse.json(client)
   } catch (error) {

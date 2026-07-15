@@ -3,9 +3,6 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
-const DEFAULT_PAYMENT_TERMS = "Virement Bancaire (RIB joint)\nIBAN: FR76 1234 5678 9012 3456 7890 123\nBIC: EXEMPLEXXXX"
-const DEFAULT_FOOTER_NOTES = "Pénalités de retard applicables après l'échéance.\nPas d'escompte pour paiement anticipé.\nLa propriété des clichés est transférée après paiement complet."
-
 const STATUS_MAP: Record<string, { label: string, color: string, bg: string, border: string }> = {
   "DRAFT": { label: "Brouillon", color: "text-zinc-400", bg: "bg-zinc-900/50", border: "border-zinc-800" },
   "SENT": { label: "Envoyée", color: "text-blue-400", bg: "bg-blue-900/20", border: "border-blue-800/50" },
@@ -20,6 +17,7 @@ export default function InvoicesPage() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [defaults, setDefaults] = useState<any>(null)
   
   // Filters & Search
   const [search, setSearch] = useState("")
@@ -35,15 +33,31 @@ export default function InvoicesPage() {
     address: "",
     vatRate: 20.0,
     status: "DRAFT",
-    paymentTerms: DEFAULT_PAYMENT_TERMS,
-    footerNotes: DEFAULT_FOOTER_NOTES
+    paymentTerms: "",
+    footerNotes: ""
   })
   const [items, setItems] = useState([{ description: "", quantity: 1, price: 0 }])
 
   useEffect(() => {
     fetchInvoices()
     fetchClients()
+    fetchDefaults()
   }, [filterClientId, search])
+
+  const fetchDefaults = async () => {
+    const res = await fetch("/api/admin/settings?key=invoice_defaults")
+    if (res.ok) {
+      const data = await res.json()
+      if (data) {
+        setDefaults(data)
+        setFormData(prev => ({
+          ...prev,
+          paymentTerms: data.defaultPaymentTerms || "",
+          footerNotes: data.defaultFooterNotes || ""
+        }))
+      }
+    }
+  }
 
   const fetchInvoices = async () => {
     const params = new URLSearchParams()
@@ -119,8 +133,8 @@ export default function InvoicesPage() {
           address: "",
           vatRate: 20.0,
           status: "DRAFT",
-          paymentTerms: DEFAULT_PAYMENT_TERMS,
-          footerNotes: DEFAULT_FOOTER_NOTES
+          paymentTerms: defaults?.defaultPaymentTerms || "",
+          footerNotes: defaults?.defaultFooterNotes || ""
         })
         fetchInvoices()
       }

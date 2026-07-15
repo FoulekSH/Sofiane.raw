@@ -20,21 +20,22 @@ export async function POST(req: NextRequest) {
   }
 
   const existingPhotos = await prisma.photo.findMany({
-    select: { filename: true }
+    select: { filename: true, order: true }
   })
   const existingFilenames = new Set(existingPhotos.map(p => p.filename))
+  const maxOrder = Math.max(0, ...existingPhotos.map(p => p.order))
 
   const newPhotos = photos.filter(f => !existingFilenames.has(f))
 
   for (let i = 0; i < newPhotos.length; i++) {
     const filename = newPhotos[i]
     await prisma.photo.upsert({
-      where: { id: filename }, // On utilise le filename comme ID pour la consistance
+      where: { id: filename },
       update: { filename },
       create: {
         id: filename,
         filename,
-        order: existingPhotos.length + i,
+        order: maxOrder + 1 + i,
         isPublic: true,
         category: "Portfolio"
       },
