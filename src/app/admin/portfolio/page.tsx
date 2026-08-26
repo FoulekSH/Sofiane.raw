@@ -139,6 +139,7 @@ export default function AdminPortfolio() {
   const [photos, setPhotos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
+  const [cleaning, setCleaning] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [isReordering, setIsReordering] = useState(false)
@@ -256,6 +257,24 @@ export default function AdminPortfolio() {
     setSyncing(false)
   }
 
+  const cleanOrphans = async () => {
+    if (!confirm("Voulez-vous vraiment supprimer les fichiers orphelins (images non liées dans la base de données) ?")) return
+    setCleaning(true)
+    try {
+      const res = await fetch("/api/admin/portfolio/clean", { method: "POST" })
+      if (res.ok) {
+        const data = await res.json()
+        alert(`${data.deleted} fichiers orphelins supprimés.`)
+      } else {
+        alert("Erreur lors du nettoyage.")
+      }
+    } catch (err) {
+      alert("Erreur serveur.")
+    } finally {
+      setCleaning(false)
+    }
+  }
+
   const updatePhoto = async (id: string, data: any) => {
     const res = await fetch("/api/admin/portfolio", {
       method: "PATCH",
@@ -339,10 +358,18 @@ export default function AdminPortfolio() {
 
           <button 
             onClick={syncPhotos}
-            disabled={syncing}
-            className="bg-zinc-800 text-white px-6 py-2 rounded-full font-bold hover:bg-zinc-700 transition text-[10px] uppercase tracking-widest"
+            disabled={syncing || cleaning}
+            className="bg-zinc-800 text-white px-6 py-2 rounded-full font-bold hover:bg-zinc-700 transition text-[10px] uppercase tracking-widest disabled:opacity-50"
           >
             {syncing ? "Scanner..." : "Scanner Serveur"}
+          </button>
+
+          <button 
+            onClick={cleanOrphans}
+            disabled={syncing || cleaning}
+            className="bg-red-900/50 text-red-500 border border-red-900 px-6 py-2 rounded-full font-bold hover:bg-red-900 hover:text-white transition text-[10px] uppercase tracking-widest disabled:opacity-50"
+          >
+            {cleaning ? "Nettoyage..." : "Nettoyer Orphelins"}
           </button>
 
           <label className="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-zinc-200 transition text-[10px] uppercase tracking-widest cursor-pointer">

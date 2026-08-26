@@ -18,6 +18,14 @@ export const metadata: Metadata = {
   description: "Portfolio de Sofiane, photographe spécialisé en portrait, mode et événements. Expérience visuelle immersive.",
 }
 
+import type { Viewport } from "next"
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 import Script from "next/script"
 
 export default function RootLayout({

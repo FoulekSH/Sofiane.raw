@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function TransfersPage() {
@@ -9,7 +9,9 @@ export default function TransfersPage() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const xhrRef = useRef<XMLHttpRequest | null>(null)
 
   // Form State
   const [files, setFiles] = useState<FileList | null>(null)
@@ -36,6 +38,7 @@ export default function TransfersPage() {
     e.preventDefault()
     if (!files || files.length === 0) return
     setUploading(true)
+    setUploadProgress(0)
 
     const formData = new FormData()
     for (let i = 0; i < files.length; i++) {
@@ -45,26 +48,52 @@ export default function TransfersPage() {
     formData.append("expirationDays", expirationDays)
     formData.append("password", password)
 
-    try {
-      const res = await fetch("/api/admin/transfers", {
-        method: "POST",
-        body: formData
-      })
+    const xhr = new XMLHttpRequest()
+    xhrRef.current = xhr
+    xhr.open("POST", "/api/admin/transfers", true)
 
-      if (res.ok) {
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100)
+        setUploadProgress(percentComplete)
+      }
+    }
+
+    xhr.onload = () => {
+      setUploading(false)
+      if (xhr.status === 200) {
         setShowForm(false)
         setFiles(null)
         setPassword("")
+        setUploadProgress(0)
         fetchTransfers()
       } else {
-        const error = await res.json()
-        alert(error.error || "Erreur lors de l'upload")
+        try {
+          const error = JSON.parse(xhr.responseText)
+          alert(error.error || "Erreur lors de l'upload")
+        } catch {
+          alert("Erreur lors de l'upload")
+        }
       }
-    } catch (error) {
-      console.error(error)
-      alert("Erreur de connexion")
-    } finally {
+    }
+
+    xhr.onerror = () => {
       setUploading(false)
+      alert("Erreur de connexion")
+    }
+
+    xhr.onabort = () => {
+      setUploading(false)
+      setUploadProgress(0)
+    }
+
+    xhr.send(formData)
+  }
+
+  const handleCancel = () => {
+    if (xhrRef.current) {
+      xhrRef.current.abort()
+      xhrRef.current = null
     }
   }
 
@@ -94,11 +123,16 @@ export default function TransfersPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-light italic">Transferts de Fichiers</h2>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-light italic">Transferts de Fichiers</h2>
+          <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold mt-1 max-w-xl">
+            Partagez vos photos et vidéos à vos clients de manière sécurisée et rapide via un lien unique.
+          </p>
+        </div>
         <button 
           onClick={() => setShowForm(!showForm)}
-          className="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-zinc-200 transition text-xs uppercase tracking-widest"
+          className="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-zinc-200 transition text-xs uppercase tracking-widest whitespace-nowrap"
         >
           {showForm ? "Fermer" : "Nouveau Transfert"}
         </button>
@@ -164,20 +198,39 @@ export default function TransfersPage() {
                   </div>
                </div>
 
-               <button 
-                 type="submit" 
-                 disabled={uploading}
-                 className="w-full bg-white text-black py-4 rounded-full font-bold hover:bg-zinc-200 transition uppercase tracking-widest text-xs"
-               >
-                 {uploading ? "Transfert en cours..." : "Créer le transfert"}
-               </button>
+               <div className="space-y-2">
+                 <div className="flex gap-2">
+                   <button 
+                     type="submit" 
+                     disabled={uploading}
+                     className="flex-1 bg-white text-black py-4 rounded-full font-bold hover:bg-zinc-200 transition uppercase tracking-widest text-xs relative overflow-hidden"
+                   >
+                     <span className="relative z-10">{uploading ? `Transfert en cours... ${uploadProgress}%` : "Créer le transfert"}</span>
+                     {uploading && (
+                       <div 
+                         className="absolute inset-y-0 left-0 bg-zinc-300 transition-all duration-300 ease-out"
+                         style={{ width: `${uploadProgress}%` }}
+                       ></div>
+                     )}
+                   </button>
+                   {uploading && (
+                     <button
+                       type="button"
+                       onClick={handleCancel}
+                       className="px-6 bg-red-900 text-white rounded-full font-bold hover:bg-red-700 transition uppercase tracking-widest text-xs"
+                     >
+                       Annuler
+                     </button>
+                   )}
+                 </div>
+               </div>
             </form>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-        <table className="w-full text-left">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-x-auto">
+        <table className="w-full text-left whitespace-nowrap">
           <thead>
             <tr className="bg-zinc-950 text-zinc-500 text-[10px] uppercase tracking-[0.3em] font-bold">
               <th className="px-6 py-5">Fichiers</th>

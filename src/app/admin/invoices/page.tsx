@@ -373,8 +373,8 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
-        <table className="w-full text-left">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-x-auto shadow-xl">
+        <table className="w-full text-left whitespace-nowrap">
           <thead>
             <tr className="bg-zinc-950 text-zinc-500 text-[10px] uppercase tracking-[0.3em] font-bold">
               <th className="px-6 py-5 w-10">

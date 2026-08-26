@@ -7,9 +7,9 @@ const categoriesList = [
   { slug: "editorial", name: "Mode / Éditorial", fallback: "1775763682718_A7401270.jpg" },
   { slug: "branding", name: "Branding / Content", fallback: "1775763682736_A7401359.jpg" },
   { slug: "event", name: "Événementiel", fallback: "1775763682732_A7401341.jpg" },
-  { slug: "sport", name: "Sport", fallback: "A7400010.jpg" },
-  { slug: "portrait", name: "Portraits", fallback: "A7400028.jpg" },
-  { slug: "auto", name: "Automobile", fallback: "A7400737.jpg" },
+  { slug: "sport", name: "Sport", fallback: "1775763682750_A7401489.jpg" },
+  { slug: "portrait", name: "Portraits", fallback: "1775763682794_A7401573.jpg" },
+  { slug: "auto", name: "Automobile", fallback: "1775763682887_A7402745.jpg" },
 ]
 
 export default function CategoryCarousel() {

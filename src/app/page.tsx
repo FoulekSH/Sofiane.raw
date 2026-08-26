@@ -6,7 +6,7 @@ import Hero from '@/components/Hero'
 import CategoryCarousel from '@/components/CategoryCarousel'
 import Link from 'next/link'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export default async function Home() {
   try {
@@ -48,17 +48,17 @@ export default async function Home() {
                 </ScrollReveal>
              </div>
              <div className="w-full md:w-1/2 space-y-12">
-                <ScrollReveal direction="right">
-                   <div className="space-y-6">
-                      <span className="text-[10px] text-zinc-600 uppercase tracking-[0.6em] font-bold">Série à la une</span>
-                      <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none text-white italic">
-                        {featuredPhoto?.title || "L'ESSENCE DU REGARD."}
-                      </h2>
-                      <p className="text-zinc-400 text-lg leading-relaxed font-light max-w-md">
-                        {featuredPhoto?.description || "Une étude sur la vulnérabilité et la force intérieure. Cette série explore les textures de la peau sous une lumière naturelle brute, révélant ce qui se cache derrière le paraître."}
-                      </p>
-                   </div>
-                </ScrollReveal>
+                 <ScrollReveal direction="right">
+                    <div className="space-y-6">
+                       <span className="text-[10px] text-zinc-600 uppercase tracking-[0.6em] font-bold">Série à la une</span>
+                       <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none text-white italic">
+                         {(featuredPhoto?.title && !featuredPhoto.title.match(/\.(jpg|jpeg|png|webp|gif)$/i)) ? featuredPhoto.title : "L'ESSENCE DU REGARD."}
+                       </h2>
+                       <p className="text-zinc-400 text-lg leading-relaxed font-light max-w-md">
+                         {featuredPhoto?.description || "Une étude sur la vulnérabilité et la force intérieure. Cette série explore les textures de la peau sous une lumière naturelle brute, révélant ce qui se cache derrière le paraître."}
+                       </p>
+                    </div>
+                 </ScrollReveal>
                 
                 <ScrollReveal delay={0.4} direction="right">
                    <Link 

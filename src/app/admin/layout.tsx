@@ -31,11 +31,11 @@ export default async function AdminLayout({
             </h2>
           </Link>
         </div>
-        <nav className="mt-6 flex flex-col space-y-2 px-4 pb-10">
-          <Link href="/admin" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+        <nav className="mt-2 md:mt-6 flex flex-row overflow-x-auto md:flex-col space-x-2 md:space-x-0 space-y-0 md:space-y-2 px-4 pb-4 md:pb-10 scrollbar-hide items-center md:items-stretch">
+          <Link href="/admin" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Tableau de bord
           </Link>
-          <Link href="/admin/messages" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition flex justify-between items-center group">
+          <Link href="/admin/messages" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition flex justify-between items-center group whitespace-nowrap gap-2">
             <span>Messages</span>
             {unreadMessagesCount > 0 && (
               <span className="bg-white text-black text-[9px] font-black px-2 py-0.5 rounded-full group-hover:scale-110 transition-transform animate-pulse">
@@ -43,28 +43,28 @@ export default async function AdminLayout({
               </span>
             )}
           </Link>
-          <Link href="/admin/transfers" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+          <Link href="/admin/transfers" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Transferts (WeTransfer)
           </Link>
-          <div className="h-px bg-zinc-800 mx-4 my-2"></div>
-          <Link href="/admin/clients" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+          <div className="hidden md:block h-px bg-zinc-800 mx-4 my-2"></div>
+          <Link href="/admin/clients" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Clients
           </Link>
-          <Link href="/admin/invoices" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+          <Link href="/admin/invoices" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Factures & Devis
           </Link>
-          <div className="h-px bg-zinc-800 mx-4 my-2"></div>
-          <Link href="/admin/portfolio" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+          <div className="hidden md:block h-px bg-zinc-800 mx-4 my-2"></div>
+          <Link href="/admin/portfolio" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Portfolio Public
           </Link>
-          <Link href="/admin/portfolio/categories" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+          <Link href="/admin/portfolio/categories" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Catégories
           </Link>
-          <div className="h-px bg-zinc-800 mx-4 my-2"></div>
-          <Link href="/admin/settings" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
+          <div className="hidden md:block h-px bg-zinc-800 mx-4 my-2"></div>
+          <Link href="/admin/settings" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Paramètres
           </Link>
-          <Link href="/" className="px-4 py-3 rounded text-zinc-500 hover:text-zinc-300 mt-8 block">
+          <Link href="/" className="px-4 py-3 rounded text-zinc-500 hover:text-zinc-300 md:mt-8 block whitespace-nowrap">
             ← Voir le site
           </Link>
         </nav>
