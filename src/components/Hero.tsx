@@ -37,7 +37,7 @@ export default function Hero({ photo }: { photo?: string }) {
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-            className="text-7xl md:text-[14rem] font-bold tracking-tighter leading-[0.8] bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-400 to-amber-200"
+            className="text-6xl md:text-[14rem] font-bold tracking-tighter leading-[0.8] bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-400 to-amber-200"
           >
             SOFIANE <br /> <span className="font-light italic ml-12 md:ml-32 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-600">.RAW</span>
           </motion.h1>

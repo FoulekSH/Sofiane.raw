@@ -51,7 +51,7 @@ export default async function Home() {
                  <ScrollReveal direction="right">
                     <div className="space-y-6">
                        <span className="text-[10px] text-zinc-600 uppercase tracking-[0.6em] font-bold">Série à la une</span>
-                       <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none text-white italic">
+                       <h2 className="text-4xl md:text-7xl font-bold tracking-tighter leading-none text-white italic">
                          {(featuredPhoto?.title && !featuredPhoto.title.match(/\.(jpg|jpeg|png|webp|gif)$/i)) ? featuredPhoto.title : "L'ESSENCE DU REGARD."}
                        </h2>
                        <p className="text-zinc-400 text-lg leading-relaxed font-light max-w-md">
@@ -102,7 +102,7 @@ export default async function Home() {
             <ScrollReveal direction="left">
               <div className="space-y-4">
                  <span className="text-zinc-400 text-[10px] uppercase tracking-[0.4em] font-bold">Projets sélectionnés</span>
-                 <h2 className="text-8xl md:text-[12rem] font-bold tracking-tighter leading-none">PORTFOLIO.</h2>
+                 <h2 className="text-6xl md:text-[12rem] font-bold tracking-tighter leading-none">PORTFOLIO.</h2>
               </div>
             </ScrollReveal>
             <ScrollReveal direction="right">
@@ -127,7 +127,7 @@ export default async function Home() {
               <ScrollReveal>
                  <div className="text-center space-y-4">
                     <span className="text-[10px] text-zinc-700 uppercase tracking-[0.6em] font-bold">Services</span>
-                    <h2 className="text-5xl md:text-7xl font-bold tracking-tighter text-white uppercase italic">Collaborations</h2>
+                    <h2 className="text-4xl md:text-7xl font-bold tracking-tighter text-white uppercase italic">Collaborations</h2>
                  </div>
               </ScrollReveal>
 
@@ -177,7 +177,7 @@ export default async function Home() {
            <ScrollReveal>
               <div className="mb-24 space-y-4">
                  <span className="text-[10px] text-zinc-700 uppercase tracking-[0.6em] font-bold">Prêt pour la suite ?</span>
-                 <h2 className="text-6xl md:text-8xl font-light leading-none">DÉBUTER UNE <br /><span className="italic font-serif">HISTOIRE.</span></h2>
+                 <h2 className="text-5xl md:text-8xl font-light leading-none">DÉBUTER UNE <br /><span className="italic font-serif">HISTOIRE.</span></h2>
               </div>
            </ScrollReveal>
            <ContactForm />
