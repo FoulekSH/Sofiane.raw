@@ -102,7 +102,7 @@ export default async function Home() {
             <ScrollReveal direction="left">
               <div className="space-y-4">
                  <span className="text-zinc-400 text-[10px] uppercase tracking-[0.4em] font-bold">Projets sélectionnés</span>
-                 <h2 className="text-6xl md:text-[12rem] font-bold tracking-tighter leading-none">PORTFOLIO.</h2>
+                 <h2 className="text-[clamp(3rem,12vw,12rem)] font-bold tracking-[-0.06em] leading-[0.8] break-words">PORTFOLIO.</h2>
               </div>
             </ScrollReveal>
             <ScrollReveal direction="right">
@@ -177,7 +177,7 @@ export default async function Home() {
            <ScrollReveal>
               <div className="mb-24 space-y-4">
                  <span className="text-[10px] text-zinc-700 uppercase tracking-[0.6em] font-bold">Prêt pour la suite ?</span>
-                 <h2 className="text-5xl md:text-8xl font-light leading-none">DÉBUTER UNE <br /><span className="italic font-serif">HISTOIRE.</span></h2>
+                 <h2 className="text-[clamp(2.8rem,10vw,8rem)] font-light leading-[0.9] break-words">DÉBUTER UNE <br /><span className="italic font-serif">HISTOIRE.</span></h2>
               </div>
            </ScrollReveal>
            <ContactForm />

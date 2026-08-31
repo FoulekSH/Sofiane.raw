@@ -31,15 +31,15 @@ export default function Hero({ photo }: { photo?: string }) {
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/80 via-transparent to-zinc-950 z-[2]"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-transparent to-zinc-950 opacity-40 z-[2]"></div>
 
-      <div className="relative z-10 text-center px-4 space-y-12">
+      <div className="relative z-10 text-center px-3 sm:px-4 space-y-8 sm:space-y-12 max-w-[95vw]">
         <div className="overflow-hidden">
           <motion.h1 
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-            className="text-6xl md:text-[14rem] font-bold tracking-tighter leading-[0.8] bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-400 to-amber-200"
+            className="max-w-full text-[clamp(3rem,13vw,8rem)] sm:text-[clamp(4rem,12vw,10rem)] md:text-[14rem] font-bold tracking-[-0.06em] leading-[0.78] bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-400 to-amber-200"
           >
-            SOFIANE <br /> <span className="font-light italic ml-12 md:ml-32 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-600">.RAW</span>
+            SOFIANE <br /> <span className="block font-light italic text-[clamp(2.3rem,9vw,6rem)] md:text-[clamp(4rem,9vw,8rem)] md:ml-32 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-600">.RAW</span>
           </motion.h1>
         </div>
 
@@ -47,14 +47,14 @@ export default function Hero({ photo }: { photo?: string }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 2, delay: 1.5 }}
-          className="flex flex-col items-center gap-8"
+          className="flex flex-col items-center gap-6 sm:gap-8"
         >
-          <p className="text-zinc-500 text-xs md:text-sm tracking-[0.8em] uppercase font-bold">
+          <p className="text-zinc-500 text-[9px] sm:text-xs md:text-sm tracking-[0.35em] sm:tracking-[0.8em] uppercase font-bold">
             Créateur d'images
           </p>
           
-          <div className="pt-8">
-            <a href="#contact" className="px-12 py-5 bg-white text-black text-[10px] uppercase tracking-[0.4em] font-bold rounded-full hover:bg-zinc-200 transition-all duration-500 transform hover:scale-105">
+          <div className="pt-4 sm:pt-8">
+            <a href="#contact" className="px-6 py-3 sm:px-12 sm:py-5 bg-white text-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.4em] font-bold rounded-full hover:bg-zinc-200 transition-all duration-500 transform hover:scale-105">
               Réserver une séance
             </a>
           </div>

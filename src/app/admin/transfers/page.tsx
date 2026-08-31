@@ -3,26 +3,46 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
+type ClientItem = {
+  id: string
+  name: string
+}
+
+type TransferFileItem = {
+  id: string
+  originalName: string
+  size: number
+}
+
+type TransferItem = {
+  id: string
+  token: string
+  expiresAt: string
+  password?: string | null
+  downloads: number
+  client?: {
+    name?: string
+  }
+  files?: TransferFileItem[]
+}
+
 export default function TransfersPage() {
-  const [transfers, setTransfers] = useState<any[]>([])
-  const [clients, setClients] = useState<any[]>([])
+  const [transfers, setTransfers] = useState<TransferItem[]>([])
+  const [clients, setClients] = useState<ClientItem[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadEta, setUploadEta] = useState<string>("")
+  const [uploadSpeed, setUploadSpeed] = useState<string>("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const xhrRef = useRef<XMLHttpRequest | null>(null)
+  const uploadStartRef = useRef<number | null>(null)
 
   // Form State
   const [files, setFiles] = useState<FileList | null>(null)
   const [clientId, setClientId] = useState("")
   const [expirationDays, setExpirationDays] = useState("7")
   const [password, setPassword] = useState("")
-
-  useEffect(() => {
-    fetchTransfers()
-    fetchClients()
-  }, [])
 
   const fetchTransfers = async () => {
     const res = await fetch("/api/admin/transfers")
@@ -34,11 +54,54 @@ export default function TransfersPage() {
     if (res.ok) setClients(await res.json())
   }
 
+  useEffect(() => {
+    const loadInitialData = async () => {
+      await Promise.all([fetchTransfers(), fetchClients()])
+    }
+
+    void loadInitialData()
+  }, [])
+
+  const formatBytes = (value: number) => {
+    if (!Number.isFinite(value) || value <= 0) return "0 KB"
+    const units = ["B", "KB", "MB", "GB"]
+    let size = value
+    let unitIndex = 0
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024
+      unitIndex += 1
+    }
+
+    return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
+  }
+
+  const formatDuration = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "Calcul..."
+
+    const totalSeconds = Math.max(1, Math.round(seconds))
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const secs = totalSeconds % 60
+
+    if (hours > 0) return `${hours}h ${minutes}m ${secs}s`
+    if (minutes > 0) return `${minutes}m ${secs}s`
+    return `${secs}s`
+  }
+
+  const totalSelectedSize = files ? Array.from(files).reduce((sum, file) => sum + file.size, 0) : 0
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!files || files.length === 0) return
+
+    const totalBytes = Array.from(files).reduce((sum, file) => sum + file.size, 0)
+
+    uploadStartRef.current = Date.now()
     setUploading(true)
     setUploadProgress(0)
+    setUploadEta("Calcul du temps restant...")
+    setUploadSpeed("")
 
     const formData = new FormData()
     for (let i = 0; i < files.length; i++) {
@@ -53,14 +116,24 @@ export default function TransfersPage() {
     xhr.open("POST", "/api/admin/transfers", true)
 
     xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percentComplete = Math.round((event.loaded / event.total) * 100)
-        setUploadProgress(percentComplete)
-      }
+      if (!event.lengthComputable || !totalBytes) return
+
+      const loaded = event.loaded
+      const percentComplete = Math.min(Math.round((loaded / event.total) * 100), 100)
+      const elapsedMs = Date.now() - (uploadStartRef.current ?? Date.now())
+      const uploadSpeedBytes = elapsedMs > 0 ? loaded / (elapsedMs / 1000) : 0
+      const remainingBytes = Math.max(event.total - loaded, 0)
+      const etaSeconds = uploadSpeedBytes > 0 ? remainingBytes / uploadSpeedBytes : 0
+
+      setUploadProgress(percentComplete)
+      setUploadSpeed(`${formatBytes(uploadSpeedBytes)}/s`)
+      setUploadEta(`${formatDuration(etaSeconds)} restantes`)
     }
 
     xhr.onload = () => {
       setUploading(false)
+      setUploadEta("")
+      setUploadSpeed("")
       if (xhr.status === 200) {
         setShowForm(false)
         setFiles(null)
@@ -79,12 +152,16 @@ export default function TransfersPage() {
 
     xhr.onerror = () => {
       setUploading(false)
+      setUploadEta("")
+      setUploadSpeed("")
       alert("Erreur de connexion")
     }
 
     xhr.onabort = () => {
       setUploading(false)
       setUploadProgress(0)
+      setUploadEta("")
+      setUploadSpeed("")
     }
 
     xhr.send(formData)
@@ -97,7 +174,7 @@ export default function TransfersPage() {
     }
   }
 
-  const updateTransfer = async (id: string, data: any) => {
+  const updateTransfer = async (id: string, data: { expiresAt?: string; password?: string | null }) => {
     const res = await fetch("/api/admin/transfers", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -198,32 +275,54 @@ export default function TransfersPage() {
                   </div>
                </div>
 
-               <div className="space-y-2">
+               {uploading ? (
+                 <div className="rounded-2xl border border-zinc-700 bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-800 p-5">
+                   <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                     <div>
+                       <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-500">Transfert en cours</p>
+                       <p className="mt-3 text-4xl md:text-5xl font-black tracking-[-0.08em] text-white">{uploadProgress}%</p>
+                     </div>
+                     <div className="text-left sm:text-right text-[10px] uppercase tracking-[0.25em] text-zinc-400">
+                       <div>{uploadSpeed || "Vitesse..."}</div>
+                       <div className="mt-2">{uploadEta || "Calcul du temps restant..."}</div>
+                     </div>
+                   </div>
+
+                   <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-zinc-800">
+                     <div
+                       className="h-full rounded-full bg-gradient-to-r from-white via-zinc-300 to-zinc-500 transition-all duration-300 ease-out"
+                       style={{ width: `${uploadProgress}%` }}
+                     />
+                   </div>
+
+                   <div className="mt-4 flex items-center justify-between text-[9px] uppercase tracking-[0.25em] text-zinc-500">
+                     <span>{totalSelectedSize > 0 ? formatBytes(totalSelectedSize) : "0 MB"}</span>
+                     <span>{files ? Array.from(files).length : 0} fichier(s)</span>
+                   </div>
+                 </div>
+               ) : (
                  <div className="flex gap-2">
                    <button 
                      type="submit" 
                      disabled={uploading}
                      className="flex-1 bg-white text-black py-4 rounded-full font-bold hover:bg-zinc-200 transition uppercase tracking-widest text-xs relative overflow-hidden"
                    >
-                     <span className="relative z-10">{uploading ? `Transfert en cours... ${uploadProgress}%` : "Créer le transfert"}</span>
-                     {uploading && (
-                       <div 
-                         className="absolute inset-y-0 left-0 bg-zinc-300 transition-all duration-300 ease-out"
-                         style={{ width: `${uploadProgress}%` }}
-                       ></div>
-                     )}
+                     <span className="relative z-10">Créer le transfert</span>
                    </button>
-                   {uploading && (
-                     <button
-                       type="button"
-                       onClick={handleCancel}
-                       className="px-6 bg-red-900 text-white rounded-full font-bold hover:bg-red-700 transition uppercase tracking-widest text-xs"
-                     >
-                       Annuler
-                     </button>
-                   )}
                  </div>
-               </div>
+               )}
+
+               {uploading && (
+                 <div className="flex justify-end">
+                   <button
+                     type="button"
+                     onClick={handleCancel}
+                     className="px-6 bg-red-900 text-white rounded-full font-bold hover:bg-red-700 transition uppercase tracking-widest text-xs"
+                   >
+                     Annuler
+                   </button>
+                 </div>
+               )}
             </form>
           </motion.div>
         )}
@@ -242,19 +341,19 @@ export default function TransfersPage() {
           </thead>
           <tbody className="divide-y divide-zinc-800">
             {transfers.map((t) => {
-              const totalSize = t.files?.reduce((sum: number, f: any) => sum + f.size, 0) || 0;
+              const totalSize = t.files?.reduce((sum: number, f: TransferFileItem) => sum + f.size, 0) || 0
               return (
               <tr key={t.id} className="hover:bg-zinc-800/30 transition group">
                 <td className="px-6 py-5">
                   <p className="text-zinc-200 font-medium">{t.files?.length || 0} fichier(s)</p>
                   <p className="text-[10px] text-zinc-600">{(totalSize / 1024 / 1024).toFixed(2)} MB</p>
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {t.files?.slice(0, 3).map((f: any) => (
+                    {t.files?.slice(0, 3).map((f: TransferFileItem) => (
                       <span key={f.id} className="text-[8px] bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded text-zinc-400 truncate max-w-[120px]">
                         {f.originalName}
                       </span>
                     ))}
-                    {t.files?.length > 3 && <span className="text-[8px] text-zinc-600 font-bold">+{t.files.length - 3} plus</span>}
+                    {t.files && t.files.length > 3 && <span className="text-[8px] text-zinc-600 font-bold">+{t.files.length - 3} plus</span>}
                   </div>
                 </td>
                 <td className="px-6 py-5">

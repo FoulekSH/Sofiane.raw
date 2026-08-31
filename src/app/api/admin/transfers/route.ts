@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/prisma"
-import { writeFile, mkdir, unlink } from "fs/promises"
+import { mkdir, unlink } from "fs/promises"
+import { createWriteStream } from "fs"
+import { Readable } from "stream"
+import { pipeline } from "stream/promises"
+import { ReadableStream as NodeReadableStream } from "node:stream/web"
 import path from "path"
 import crypto from "crypto"
 
@@ -52,11 +56,11 @@ export async function POST(req: NextRequest) {
     const transferFiles = []
     for (const file of files) {
       const filename = `${token}-${crypto.randomBytes(4).toString("hex")}-${file.name}`
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      
       const filePath = path.join(uploadDir, filename)
-      await writeFile(filePath, buffer)
+
+      const webStream = file.stream()
+      const nodeStream = Readable.fromWeb(webStream as unknown as NodeReadableStream)
+      await pipeline(nodeStream, createWriteStream(filePath))
 
       const tf = await prisma.transferFile.create({
         data: {
@@ -76,9 +80,10 @@ export async function POST(req: NextRequest) {
       transfer,
       files: transferFiles
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Erreur inconnue"
     console.error("Upload error:", error)
-    return NextResponse.json({ error: "Erreur lors de l'upload: " + error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erreur lors de l'upload: " + message }, { status: 500 })
   }
 }
 
@@ -98,7 +103,7 @@ export async function PATCH(req: NextRequest) {
     })
 
     return NextResponse.json(updatedTransfer)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur mise à jour transfert" }, { status: 500 })
   }
 }
@@ -136,13 +141,17 @@ export async function DELETE(req: NextRequest) {
     if (transfer) {
       for (const file of transfer.files) {
         const filePath = path.join(process.cwd(), "uploads", "transfers", file.filename)
-        try { await unlink(filePath) } catch (e) {}
+        try {
+          await unlink(filePath)
+        } catch {
+          // Ignore file removal errors; the transfer record is the source of truth.
+        }
       }
     }
     
     await prisma.transfer.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur suppression" }, { status: 500 })
   }
 }
