@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
+import { revalidatePath } from "next/cache"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/prisma"
 
@@ -21,8 +22,14 @@ export async function POST(req: NextRequest) {
       create: { name, slug, coverImage, description }
     })
 
+    // Met à jour l'image d'entête de la catégorie sur les pages publiques.
+    revalidatePath("/")
+    revalidatePath("/portfolio/[slug]", "page")
+
     return NextResponse.json(config)
   } catch (error) {
-    return NextResponse.json({ error: "Erreur config catégorie" }, { status: 500 })
+    console.error("Erreur POST catégorie:", error)
+    const message = error instanceof Error ? error.message : "Erreur config catégorie"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

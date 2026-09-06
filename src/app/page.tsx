@@ -10,16 +10,23 @@ export const revalidate = 60
 
 export default async function Home() {
   try {
-    const photos = await prisma.photo.findMany({
-      where: { 
-        isPublic: true,
-        showOnHomePage: true
-      },
-      orderBy: { order: 'asc' }
-    })
+    const [photos, heroFlagged, featuredFlagged] = await Promise.all([
+      prisma.photo.findMany({
+        where: {
+          isPublic: true,
+          showOnHomePage: true
+        },
+        orderBy: { order: 'asc' }
+      }),
+      // La photo "Fond du titre" et la photo "À la une" sont choisies
+      // indépendamment du fait qu'elles soient affichées dans la grille
+      // d'accueil : il suffit qu'elles soient publiques.
+      prisma.photo.findFirst({ where: { isPublic: true, isHero: true } }),
+      prisma.photo.findFirst({ where: { isPublic: true, isFeatured: true } })
+    ])
 
-    const heroPhoto = photos.find(p => p.isHero) || photos[0]
-    const featuredPhoto = photos.find(p => p.isFeatured) || photos[1] || photos[0]
+    const heroPhoto = heroFlagged || photos[0]
+    const featuredPhoto = featuredFlagged || photos[1] || photos[0]
 
     return (
       <main className="min-h-screen bg-zinc-950 overflow-x-hidden">

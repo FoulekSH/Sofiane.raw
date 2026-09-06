@@ -60,7 +60,7 @@ function PhotoCard({ photo, index, total, selectedIds, toggleSelect, updatePhoto
             </button>
          </div>
 
-         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition duration-300">
+         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex flex-col gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition duration-300">
             <div className="flex gap-1 justify-center">
               <button 
                 onClick={(e) => { e.stopPropagation(); updatePhoto(photo.id, { isPublic: !photo.isPublic }); }}
@@ -294,6 +294,9 @@ export default function AdminPortfolio() {
         }
         return p.id === id ? { ...p, ...data } : p
       }))
+    } else {
+      const err = await res.json().catch(() => ({}))
+      alert("Échec de la mise à jour : " + (err.error || res.status))
     }
   }
 

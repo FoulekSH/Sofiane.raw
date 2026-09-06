@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
+import { revalidatePath } from "next/cache"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/prisma"
 import fs from "fs/promises"
@@ -39,9 +40,18 @@ export async function PATCH(req: NextRequest) {
       where: { id },
       data: { isPublic, isFeatured, isHero, showOnHomePage, order, category, title, description }
     })
+
+    // Rafraîchit les pages publiques mises en cache (ISR) pour que les
+    // changements de "Fond du titre" / "À la une" / catégorie soient
+    // visibles dès le prochain chargement du site.
+    revalidatePath("/")
+    revalidatePath("/portfolio/[slug]", "page")
+
     return NextResponse.json(updatedPhoto)
   } catch (error) {
-    return NextResponse.json({ error: "Erreur lors de la mise à jour" }, { status: 500 })
+    console.error("Erreur PATCH portfolio:", error)
+    const message = error instanceof Error ? error.message : "Erreur lors de la mise à jour"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 

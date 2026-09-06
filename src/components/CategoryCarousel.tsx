@@ -2,15 +2,23 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { CATEGORIES } from "@/lib/categories"
 
-const categoriesList = [
-  { slug: "editorial", name: "Mode / Éditorial", fallback: "1775763682718_A7401270.jpg" },
-  { slug: "branding", name: "Branding / Content", fallback: "1775763682736_A7401359.jpg" },
-  { slug: "event", name: "Événementiel", fallback: "1775763682732_A7401341.jpg" },
-  { slug: "sport", name: "Sport", fallback: "1775763682750_A7401489.jpg" },
-  { slug: "portrait", name: "Portraits", fallback: "1775763682794_A7401573.jpg" },
-  { slug: "auto", name: "Automobile", fallback: "1775763682887_A7402745.jpg" },
-]
+// Image de secours par catégorie tant qu'aucune couverture n'est définie en admin.
+const FALLBACKS: Record<string, string> = {
+  editorial: "1788372699331_A7409178.jpg",
+  branding: "1788372797952_A7400344.jpg",
+  event: "1788373241322_A7401341.jpg",
+  sport: "1788373271284_A7401791.jpg",
+  portrait: "1788373292043_A7400533.jpg",
+  auto: "1788372914655_A7401960.jpg",
+}
+
+const categoriesList = CATEGORIES.map((c) => ({
+  slug: c.slug,
+  name: c.name,
+  fallback: FALLBACKS[c.slug] || "",
+}))
 
 export default function CategoryCarousel() {
   const [configs, setConfigs] = useState<any[]>([])

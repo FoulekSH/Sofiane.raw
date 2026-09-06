@@ -1,16 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { CATEGORIES, photoInCategory } from "@/lib/categories"
 
-const categories = [
-  { name: "Mode / Éditorial", slug: "editorial" },
-  { name: "Branding / Content", slug: "branding" },
-  { name: "Événementiel", slug: "event" },
-  { name: "Sport", slug: "sport" },
-  { name: "Portraits", slug: "portrait" },
-  { name: "Automobile", slug: "auto" },
-]
+const categories = CATEGORIES
 
 export default function CategoryAdmin() {
   const [configs, setConfigs] = useState<any[]>([])
@@ -50,6 +43,9 @@ export default function CategoryAdmin() {
         return [...prev, newConfig]
       })
       alert(`Couverture mise à jour pour ${cat.name}`)
+    } else {
+      const err = await res.json().catch(() => ({}))
+      alert("Échec de la mise à jour : " + (err.error || res.status))
     }
   }
 
@@ -62,8 +58,14 @@ export default function CategoryAdmin() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {categories.map((cat) => {
           const config = configs.find(c => c.slug === cat.slug)
-          const catPhotos = photos.filter(p => p.category.toLowerCase() === cat.name.toLowerCase() || p.category.toLowerCase() === cat.slug)
-          
+
+          // Une photo peut appartenir à plusieurs catégories ("Mode / Éditorial, Sport").
+          const matched = photos.filter(p => photoInCategory(p.category, cat))
+          // Si aucune photo n'est encore rangée dans cette catégorie, on laisse
+          // quand même choisir une couverture parmi toutes les photos.
+          const catPhotos = matched.length > 0 ? matched : photos
+          const usingAllPhotos = matched.length === 0
+
           return (
             <div key={cat.slug} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col">
               <div className="aspect-video relative bg-black">
@@ -79,8 +81,12 @@ export default function CategoryAdmin() {
               </div>
 
               <div className="p-6 space-y-4 flex-grow">
-                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Choisir une image parmi {catPhotos.length} photos</p>
-                
+                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
+                  {usingAllPhotos
+                    ? `Aucune photo dans cette catégorie — choisir parmi toutes (${catPhotos.length})`
+                    : `Choisir une image parmi ${catPhotos.length} photos`}
+                </p>
+
                 <div className="grid grid-cols-4 gap-2 h-32 overflow-y-auto pr-2 custom-scrollbar">
                   {catPhotos.map(p => (
                     <button 
