@@ -21,17 +21,39 @@ export const CATEGORIES: Category[] = [
   { slug: "auto", name: "Automobile", aliases: ["auto", "automobile"] },
 ]
 
+export function normalizeCategoryValue(value: string | null | undefined): string {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’']/g, "")
+    .trim()
+    .toLowerCase()
+}
+
+export function splitCategoryValues(value: string | null | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((part) => normalizeCategoryValue(part))
+    .filter(Boolean)
+}
+
+export function categoryMatches(photoCategory: string | null | undefined, cat: Category): boolean {
+  const parts = splitCategoryValues(photoCategory)
+  const wanted = new Set(categoryNeedles(cat).map((n) => normalizeCategoryValue(n)))
+  return parts.some((part) => wanted.has(part))
+}
+
 export function resolveCategory(slugOrName: string): Category | undefined {
-  const q = slugOrName.trim().toLowerCase()
+  const q = normalizeCategoryValue(slugOrName)
   return CATEGORIES.find(
     (c) =>
-      c.slug.toLowerCase() === q ||
-      c.name.toLowerCase() === q ||
-      (c.aliases || []).some((a) => a.toLowerCase() === q)
+      normalizeCategoryValue(c.slug) === q ||
+      normalizeCategoryValue(c.name) === q ||
+      (c.aliases || []).some((a) => normalizeCategoryValue(a) === q)
   )
 }
 
-// Toutes les chaînes à rechercher dans Photo.category (contains) pour une catégorie.
+// Toutes les chaînes à rechercher dans Photo.category pour une catégorie.
 export function categoryNeedles(cat: Category): string[] {
   return [cat.name, cat.slug, ...(cat.aliases || [])]
 }
@@ -39,7 +61,5 @@ export function categoryNeedles(cat: Category): string[] {
 // Est-ce qu'une valeur Photo.category (potentiellement multi-catégories)
 // appartient à la catégorie donnée ?
 export function photoInCategory(photoCategory: string | null | undefined, cat: Category): boolean {
-  const parts = (photoCategory || "").split(",").map((p) => p.trim().toLowerCase())
-  const wanted = new Set(categoryNeedles(cat).map((n) => n.toLowerCase()))
-  return parts.some((p) => wanted.has(p))
+  return categoryMatches(photoCategory, cat)
 }

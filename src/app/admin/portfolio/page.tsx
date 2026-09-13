@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion"
 import { GripVertical, Star, Image, ArrowLeft, ArrowRight } from "lucide-react"
+import { normalizeCategoryValue, splitCategoryValues } from "@/lib/categories"
 
 const categories = ["Mode / Éditorial", "Branding / Content", "Événementiel", "Sport", "Portraits", "Automobile", "Portfolio"]
 
@@ -108,19 +109,28 @@ function PhotoCard({ photo, index, total, selectedIds, toggleSelect, updatePhoto
              <p className="text-[8px] text-zinc-600 uppercase font-bold tracking-widest">Catégories :</p>
              <div className="flex flex-wrap gap-1">
                 {categories.filter((c: string) => c !== "Portfolio").map((cat: string) => {
-                  const isSelected = photo.category.includes(cat)
+                  const isSelected = splitCategoryValues(photo.category).includes(normalizeCategoryValue(cat))
                   return (
                     <button
                       key={cat}
                       onClick={(e) => {
                         e.stopPropagation()
-                        let newCats = photo.category.split(",").map((c: string) => c.trim()).filter((c: string) => c)
+                        const currentCats = splitCategoryValues(photo.category)
+                        const normalizedCat = normalizeCategoryValue(cat)
+
+                        let newCats = currentCats
                         if (isSelected) {
-                          newCats = newCats.filter((c: string) => c !== cat)
+                          newCats = currentCats.filter((c: string) => c !== normalizedCat)
                         } else {
-                          newCats.push(cat)
+                          newCats = [...currentCats, normalizedCat]
                         }
-                        updatePhoto(photo.id, { category: newCats.join(", ") })
+
+                        const displayCats = newCats.map((c) => {
+                          const match = categories.find((category: string) => normalizeCategoryValue(category) === c)
+                          return match ?? c
+                        })
+
+                        updatePhoto(photo.id, { category: displayCats.join(", ") })
                       }}
                       className={`text-[7px] uppercase font-bold px-1.5 py-0.5 rounded border transition-colors ${isSelected ? 'border-white text-white bg-white/10' : 'border-zinc-800 text-zinc-600 hover:border-zinc-500'}`}
                     >

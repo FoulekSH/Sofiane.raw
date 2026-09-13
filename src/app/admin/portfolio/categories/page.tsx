@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Check, Loader2, ImageOff } from "lucide-react"
 import { CATEGORIES, photoInCategory } from "@/lib/categories"
 
 const categories = CATEGORIES
@@ -9,6 +10,8 @@ export default function CategoryAdmin() {
   const [configs, setConfigs] = useState<any[]>([])
   const [photos, setPhotos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  // slug -> "saving" pendant la requête, "saved" juste après (toast discret), ou absent
+  const [status, setStatus] = useState<Record<string, "saving" | "saved" | "error">>({})
 
   useEffect(() => {
     Promise.all([
@@ -22,30 +25,45 @@ export default function CategoryAdmin() {
   }, [])
 
   const updateCategory = async (cat: any, coverImage: string) => {
-    const res = await fetch("/api/admin/categories", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: cat.name,
-        slug: cat.slug,
-        coverImage
+    if (status[cat.slug] === "saving") return
+    setStatus(prev => ({ ...prev, [cat.slug]: "saving" }))
+
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: cat.name,
+          slug: cat.slug,
+          coverImage
+        })
       })
-    })
-    if (res.ok) {
-      const newConfig = await res.json()
-      setConfigs(prev => {
-        const index = prev.findIndex(c => c.slug === cat.slug)
-        if (index > -1) {
-          const updated = [...prev]
-          updated[index] = newConfig
-          return updated
-        }
-        return [...prev, newConfig]
-      })
-      alert(`Couverture mise à jour pour ${cat.name}`)
-    } else {
-      const err = await res.json().catch(() => ({}))
-      alert("Échec de la mise à jour : " + (err.error || res.status))
+
+      if (res.ok) {
+        const newConfig = await res.json()
+        setConfigs(prev => {
+          const index = prev.findIndex(c => c.slug === cat.slug)
+          if (index > -1) {
+            const updated = [...prev]
+            updated[index] = newConfig
+            return updated
+          }
+          return [...prev, newConfig]
+        })
+        setStatus(prev => ({ ...prev, [cat.slug]: "saved" }))
+      } else {
+        setStatus(prev => ({ ...prev, [cat.slug]: "error" }))
+      }
+    } catch {
+      setStatus(prev => ({ ...prev, [cat.slug]: "error" }))
+    } finally {
+      setTimeout(() => {
+        setStatus(prev => {
+          const rest = { ...prev }
+          delete rest[cat.slug]
+          return rest
+        })
+      }, 1800)
     }
   }
 
@@ -65,6 +83,7 @@ export default function CategoryAdmin() {
           // quand même choisir une couverture parmi toutes les photos.
           const catPhotos = matched.length > 0 ? matched : photos
           const usingAllPhotos = matched.length === 0
+          const catStatus = status[cat.slug]
 
           return (
             <div key={cat.slug} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col">
@@ -72,31 +91,63 @@ export default function CategoryAdmin() {
                 {config?.coverImage ? (
                   <img src={`/api/photos/${config.coverImage}`} alt={cat.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs uppercase tracking-widest">Aucune couverture</div>
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-700">
+                    <ImageOff size={20} />
+                    <span className="text-[10px] uppercase tracking-widest">Aucune couverture</span>
+                  </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60"></div>
-                <div className="absolute bottom-4 left-4">
-                  <h3 className="text-white font-bold uppercase tracking-widest">{cat.name}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70 pointer-events-none"></div>
+                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-2">
+                  <h3 className="text-white font-bold uppercase tracking-widest drop-shadow">{cat.name}</h3>
+                  {catStatus && (
+                    <span
+                      className={`flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest px-2 py-1 rounded-full backdrop-blur-md border ${
+                        catStatus === "error"
+                          ? "border-red-500 text-red-400 bg-red-500/10"
+                          : catStatus === "saved"
+                          ? "border-green-500 text-green-400 bg-green-500/10"
+                          : "border-zinc-600 text-zinc-300 bg-zinc-800/60"
+                      }`}
+                    >
+                      {catStatus === "saving" && <Loader2 size={10} className="animate-spin" />}
+                      {catStatus === "saved" && <Check size={10} />}
+                      {catStatus === "saving" ? "Enregistrement" : catStatus === "saved" ? "Enregistré" : "Échec"}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <div className="p-6 space-y-4 flex-grow">
+              <div className="p-6 space-y-3 flex-grow flex flex-col">
                 <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
                   {usingAllPhotos
                     ? `Aucune photo dans cette catégorie — choisir parmi toutes (${catPhotos.length})`
                     : `Choisir une image parmi ${catPhotos.length} photos`}
                 </p>
 
-                <div className="grid grid-cols-4 gap-2 h-32 overflow-y-auto pr-2 custom-scrollbar">
-                  {catPhotos.map(p => (
-                    <button 
-                      key={p.id}
-                      onClick={() => updateCategory(cat, p.filename)}
-                      className={`aspect-square rounded border-2 transition-all overflow-hidden ${config?.coverImage === p.filename ? 'border-white scale-90' : 'border-transparent opacity-50 hover:opacity-100'}`}
-                    >
-                      <img src={`/api/photos/${p.filename}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                  {catPhotos.map(p => {
+                    const isSelected = config?.coverImage === p.filename
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => updateCategory(cat, p.filename)}
+                        disabled={catStatus === "saving"}
+                        title={p.title || p.filename}
+                        className={`relative aspect-square rounded-lg overflow-hidden ring-2 transition-all disabled:cursor-wait ${
+                          isSelected
+                            ? "ring-white opacity-100"
+                            : "ring-transparent opacity-60 hover:opacity-100 hover:ring-zinc-600"
+                        }`}
+                      >
+                        <img src={`/api/photos/${p.filename}`} alt={p.title || p.filename} className="w-full h-full object-cover" />
+                        {isSelected && (
+                          <span className="absolute top-1 right-1 bg-white text-black rounded-full p-0.5 shadow">
+                            <Check size={10} strokeWidth={3} />
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             </div>

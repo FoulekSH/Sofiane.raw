@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 import Gallery from "@/components/Gallery"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { resolveCategory, categoryNeedles } from "@/lib/categories"
+import { resolveCategory, categoryNeedles, categoryMatches } from "@/lib/categories"
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -15,18 +15,26 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       where: { slug: cat?.slug || slug }
     })
 
-    // Toutes les valeurs possibles à chercher dans Photo.category
-    const needles = Array.from(
-      new Set([slug, config?.name, ...(cat ? categoryNeedles(cat) : [])].filter(Boolean) as string[])
-    )
-
-    // Récupérer les photos de cette catégorie
-    const photos = await prisma.photo.findMany({
-      where: {
-        isPublic: true,
-        OR: needles.map((n) => ({ category: { contains: n } }))
-      },
+    const allPhotos = await prisma.photo.findMany({
+      where: { isPublic: true },
       orderBy: { order: 'asc' }
+    })
+
+    const photos = allPhotos.filter((photo) => {
+      if (!cat && !config) return false
+
+      if (cat) return categoryMatches(photo.category, cat)
+
+      if (config?.name) {
+        const configNeedles = Array.from(
+          new Set([config.name, ...(categoryNeedles({ slug: slug, name: config.name }))].filter(Boolean))
+        )
+        return configNeedles.some((needle) => 
+          categoryMatches(photo.category, { slug: slug, name: needle })
+        )
+      }
+
+      return false
     })
 
     if (photos.length === 0 && !config && !cat) {

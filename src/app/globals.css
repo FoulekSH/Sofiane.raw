@@ -41,3 +41,32 @@ img {
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+/* Cache la scrollbar (nav admin, etc.) tout en gardant le scroll fonctionnel */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scrollbar fine et discrète pour les zones scrollables de l'admin (sombre) */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.zinc.600') transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: theme('colors.zinc.700');
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: theme('colors.zinc.500');
+}
