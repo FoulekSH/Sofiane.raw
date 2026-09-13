@@ -86,17 +86,24 @@ export default function CategoryAdmin() {
           const catStatus = status[cat.slug]
 
           return (
-            <div key={cat.slug} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col">
-              <div className="aspect-video relative bg-black">
+            <div key={cat.slug} className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden flex flex-col shadow-xl shadow-black/20">
+              {/* Astuce padding-top au lieu de aspect-video/aspect-square : garantit un
+                  ratio fixe quel que soit le support de la propriété CSS aspect-ratio,
+                  et évite tout affaissement/chevauchement des vignettes. */}
+              <div className="relative w-full bg-black" style={{ paddingTop: "42%" }}>
                 {config?.coverImage ? (
-                  <img src={`/api/photos/${config.coverImage}`} alt={cat.name} className="w-full h-full object-cover" />
+                  <img
+                    src={`/api/photos/${config.coverImage}`}
+                    alt={cat.name}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-700">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-zinc-700">
                     <ImageOff size={20} />
                     <span className="text-[10px] uppercase tracking-widest">Aucune couverture</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent pointer-events-none"></div>
                 <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-2">
                   <h3 className="text-white font-bold uppercase tracking-widest drop-shadow">{cat.name}</h3>
                   {catStatus && (
@@ -117,14 +124,17 @@ export default function CategoryAdmin() {
                 </div>
               </div>
 
-              <div className="p-6 space-y-3 flex-grow flex flex-col">
+              <div className="p-5 space-y-3 flex-grow flex flex-col">
                 <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">
                   {usingAllPhotos
                     ? `Aucune photo dans cette catégorie — choisir parmi toutes (${catPhotos.length})`
                     : `Choisir une image parmi ${catPhotos.length} photos`}
                 </p>
 
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                <div
+                  className="grid gap-2.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar content-start"
+                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(64px, 1fr))" }}
+                >
                   {catPhotos.map(p => {
                     const isSelected = config?.coverImage === p.filename
                     return (
@@ -133,15 +143,20 @@ export default function CategoryAdmin() {
                         onClick={() => updateCategory(cat, p.filename)}
                         disabled={catStatus === "saving"}
                         title={p.title || p.filename}
-                        className={`relative aspect-square rounded-lg overflow-hidden ring-2 transition-all disabled:cursor-wait ${
-                          isSelected
-                            ? "ring-white opacity-100"
-                            : "ring-transparent opacity-60 hover:opacity-100 hover:ring-zinc-600"
+                        className={`group relative block w-full overflow-hidden rounded-xl ring-2 transition-shadow disabled:cursor-wait ${
+                          isSelected ? "ring-white" : "ring-transparent hover:ring-zinc-500"
                         }`}
+                        style={{ paddingTop: "100%" }}
                       >
-                        <img src={`/api/photos/${p.filename}`} alt={p.title || p.filename} className="w-full h-full object-cover" />
+                        <img
+                          src={`/api/photos/${p.filename}`}
+                          alt={p.title || p.filename}
+                          className={`absolute inset-0 h-full w-full object-cover transition-all duration-300 ${
+                            isSelected ? "opacity-100" : "opacity-55 group-hover:opacity-100 group-hover:scale-110"
+                          }`}
+                        />
                         {isSelected && (
-                          <span className="absolute top-1 right-1 bg-white text-black rounded-full p-0.5 shadow">
+                          <span className="absolute top-1 right-1 flex items-center justify-center bg-white text-black rounded-full p-1 shadow">
                             <Check size={10} strokeWidth={3} />
                           </span>
                         )}
