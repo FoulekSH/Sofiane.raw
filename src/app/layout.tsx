@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import AuthProvider from "@/components/AuthProvider"
-import FloatingCTA from "@/components/FloatingCTA"
 import AnalyticsBeacon from "@/components/AnalyticsBeacon"
 import SiteNav from "@/components/SiteNav"
 
@@ -89,7 +88,6 @@ export default function RootLayout({
         />
         <AuthProvider>{children}</AuthProvider>
         <SiteNav />
-        <FloatingCTA />
         <AnalyticsBeacon />
         <Script 
           src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" 
