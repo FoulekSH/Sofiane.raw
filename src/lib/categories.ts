@@ -19,7 +19,6 @@ export const CATEGORIES: Category[] = [
   { slug: "sport", name: "Sport" },
   { slug: "portrait", name: "Portraits", aliases: ["portrait", "portraits"] },
   { slug: "auto", name: "Automobile", aliases: ["auto", "automobile"] },
-  { slug: "prestige", name: "Prestige" },
 ]
 
 export function normalizeCategoryValue(value: string | null | undefined): string {
