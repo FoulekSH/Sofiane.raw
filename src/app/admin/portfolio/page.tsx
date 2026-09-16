@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { GripVertical, Star, Image, ArrowLeft, ArrowRight } from "lucide-react"
 import { CATEGORIES, normalizeCategoryValue, splitCategoryValues } from "@/lib/categories"
 
@@ -10,15 +10,20 @@ import { CATEGORIES, normalizeCategoryValue, splitCategoryValues } from "@/lib/c
 // pour le tri en masse ci-dessous.
 const categories = [...CATEGORIES.map((c) => c.name), "Portfolio"]
 
-function PhotoCard({ photo, index, total, selectedIds, toggleSelect, updatePhoto, categories, movePhoto }: any) {
-  const dragControls = useDragControls()
-  
+function PhotoCard({
+  photo, index, total, selectedIds, toggleSelect, updatePhoto, categories, movePhoto,
+  onDragStart, onDragOver, onDrop, onDragEnd, isDragOver, isBeingDragged
+}: any) {
   return (
-    <Reorder.Item 
-      value={photo}
-      dragListener={false}
-      dragControls={dragControls}
-      className={`relative group bg-zinc-900 border rounded-2xl overflow-hidden transition-all duration-300 ${selectedIds.includes(photo.id) ? 'ring-2 ring-white border-white' : (photo.isPublic ? 'border-zinc-800' : 'border-red-900/50 opacity-80')}`}
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, index)}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDrop={(e) => onDrop(e, index)}
+      onDragEnd={onDragEnd}
+      className={`relative group bg-zinc-900 border rounded-2xl overflow-hidden transition-all duration-300 cursor-grab active:cursor-grabbing ${
+        isDragOver ? 'ring-2 ring-amber-400 scale-[1.02]' : selectedIds.includes(photo.id) ? 'ring-2 ring-white border-white' : (photo.isPublic ? 'border-zinc-800' : 'border-red-900/50 opacity-80')
+      } ${isBeingDragged ? 'opacity-30' : ''}`}
     >
        <div className="aspect-[4/5] relative overflow-hidden bg-black">
          <img 
@@ -35,8 +40,7 @@ function PhotoCard({ photo, index, total, selectedIds, toggleSelect, updatePhoto
              onChange={() => toggleSelect(photo.id)}
              className="w-5 h-5 rounded border-zinc-800 bg-zinc-950/50 text-white focus:ring-0 cursor-pointer backdrop-blur-md"
            />
-           <div 
-             onPointerDown={(e) => dragControls.start(e)}
+           <div
              className="bg-black/60 backdrop-blur-md p-1.5 rounded-full cursor-grab active:cursor-grabbing border border-white/10 text-white/40 hover:text-white transition-colors touch-none"
              title="Glisser-déposer"
            >
@@ -144,7 +148,7 @@ function PhotoCard({ photo, index, total, selectedIds, toggleSelect, updatePhoto
              </div>
           </div>
        </div>
-    </Reorder.Item>
+    </div>
   )
 }
 
@@ -156,6 +160,8 @@ export default function AdminPortfolio() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [isReordering, setIsReordering] = useState(false)
+  const [dragCardIndex, setDragCardIndex] = useState<number | null>(null)
+  const [dragOverCardIndex, setDragOverCardIndex] = useState<number | null>(null)
   
   // Upload State
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -210,6 +216,43 @@ export default function AdminPortfolio() {
     newPhotos[newIndex] = temp
     
     handleReorder(newPhotos)
+  }
+
+  // Glisser-déposer en grille : on échange simplement la position de la carte
+  // déplacée avec celle sur laquelle on la dépose (comme les flèches, mais au
+  // doigt). L'ancien système (Framer Motion Reorder) supposait une liste sur
+  // un seul axe et devenait chaotique sur une grille à plusieurs colonnes.
+  const handleCardDragStart = (e: React.DragEvent, index: number) => {
+    setDragCardIndex(index)
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  const handleCardDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (dragCardIndex !== null && dragCardIndex !== index) {
+      setDragOverCardIndex(index)
+    }
+  }
+
+  const handleCardDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (dragCardIndex === null || dragCardIndex === index) {
+      setDragCardIndex(null)
+      setDragOverCardIndex(null)
+      return
+    }
+    const newPhotos = [...photos]
+    const temp = newPhotos[dragCardIndex]
+    newPhotos[dragCardIndex] = newPhotos[index]
+    newPhotos[index] = temp
+    handleReorder(newPhotos)
+    setDragCardIndex(null)
+    setDragOverCardIndex(null)
+  }
+
+  const handleCardDragEnd = () => {
+    setDragCardIndex(null)
+    setDragOverCardIndex(null)
   }
 
   const handleUpload = async (files: FileList | File[]) => {
@@ -476,14 +519,9 @@ export default function AdminPortfolio() {
         </div>
       )}
 
-      <Reorder.Group 
-        axis="y" 
-        values={photos} 
-        onReorder={handleReorder}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-      >
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {photos.map((photo, index) => (
-          <PhotoCard 
+          <PhotoCard
             key={photo.id}
             photo={photo}
             index={index}
@@ -493,9 +531,15 @@ export default function AdminPortfolio() {
             updatePhoto={updatePhoto}
             categories={categories}
             movePhoto={movePhoto}
+            onDragStart={handleCardDragStart}
+            onDragOver={handleCardDragOver}
+            onDrop={handleCardDrop}
+            onDragEnd={handleCardDragEnd}
+            isDragOver={dragOverCardIndex === index}
+            isBeingDragged={dragCardIndex === index}
           />
         ))}
-      </Reorder.Group>
+      </div>
     </div>
   )
 }

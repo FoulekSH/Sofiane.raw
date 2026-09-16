@@ -120,7 +120,7 @@ export default async function Home() {
         {/* SECTION COLLABORATIONS — marques/clients, n'apparaît que si Sofiane en a ajouté en admin */}
         <CollaborationsSection items={collaborations} />
 
-        <section id="gallery" className="py-32 px-4 md:px-12 bg-white text-zinc-950">
+        <section id="gallery" className="py-32 px-4 md:px-12 bg-white text-zinc-950 scroll-mt-20">
           <div className="mb-32 flex flex-col md:flex-row md:items-end justify-between gap-8">
             <ScrollReveal direction="left">
               <div className="space-y-4">
@@ -145,7 +145,7 @@ export default async function Home() {
           <Gallery photos={photos.map(p => p.filename)} />
         </section>
 
-        <section id="prestations" className="py-48 px-4 md:px-8 bg-zinc-950">
+        <section id="prestations" className="py-48 px-4 md:px-8 bg-zinc-950 scroll-mt-20">
            <div className="max-w-7xl mx-auto space-y-32">
               <ScrollReveal>
                  <div className="text-center space-y-4">
@@ -211,7 +211,7 @@ export default async function Home() {
            </div>
         </section>
         
-        <section id="contact" className="py-48 px-4 md:px-8 bg-zinc-950 text-center relative">
+        <section id="contact" className="py-48 px-4 md:px-8 bg-zinc-950 text-center relative scroll-mt-20">
            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-32 bg-gradient-to-b from-zinc-800 to-transparent"></div>
            <ScrollReveal>
               <div className="mb-24 space-y-4">
@@ -222,13 +222,39 @@ export default async function Home() {
            <ContactForm reviews={reviews} />
         </section>
         
-        <footer className="py-12 px-8 flex flex-col md:flex-row justify-between items-center text-zinc-500 text-[9px] tracking-[0.4em] uppercase border-t border-zinc-900">
+        <footer className="py-14 px-8 flex flex-col md:flex-row justify-between items-center gap-8 text-zinc-500 text-[9px] tracking-[0.4em] uppercase border-t border-zinc-900">
           <div>SOFIANE RAW • {new Date().getFullYear()} © ALL RIGHTS RESERVED</div>
-          <div className="mt-6 md:mt-0 flex gap-8">
-             <a href="https://www.instagram.com/sofiane.raw/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Instagram</a>
-             <a href="https://www.tiktok.com/@sofiane.raw?lang=fr" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">TikTok</a>
-             <a href="https://www.linkedin.com/in/sofiane-belhou/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">LinkedIn</a>
-             <a href="#" className="hover:text-white transition">Credits</a>
+          <div className="flex gap-4">
+             <a
+               href="https://www.instagram.com/sofiane.raw/"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="Instagram"
+               title="Instagram"
+               className="group flex items-center justify-center w-11 h-11 rounded-full border border-zinc-800 text-zinc-400 hover:text-black hover:bg-gradient-to-br hover:from-amber-200 hover:to-yellow-600 hover:border-transparent hover:scale-110 transition-all duration-300"
+             >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M12 2c2.7 0 3.05.01 4.12.06 1.07.05 1.79.22 2.43.46.66.25 1.21.6 1.76 1.15.5.5.9 1.1 1.15 1.76.25.64.42 1.36.46 2.43.05 1.07.06 1.42.06 4.12s-.01 3.05-.06 4.12c-.05 1.07-.22 1.79-.46 2.43a4.9 4.9 0 0 1-1.15 1.76 4.9 4.9 0 0 1-1.76 1.15c-.64.25-1.36.42-2.43.46-1.07.05-1.42.06-4.12.06s-3.05-.01-4.12-.06c-1.07-.05-1.79-.22-2.43-.46a4.9 4.9 0 0 1-1.76-1.15 4.9 4.9 0 0 1-1.15-1.76c-.25-.64-.42-1.36-.46-2.43C2.01 15.05 2 14.7 2 12s.01-3.05.06-4.12c.05-1.07.22-1.79.46-2.43.25-.66.6-1.21 1.15-1.76A4.9 4.9 0 0 1 5.43 2.5c.64-.25 1.36-.42 2.43-.46C8.93 2.01 9.28 2 12 2zm0 1.8c-2.65 0-2.97.01-4.02.06-.87.04-1.34.18-1.66.3-.42.16-.72.36-1.03.67-.31.31-.51.61-.67 1.03-.12.32-.26.79-.3 1.66C4.27 8.53 4.26 8.85 4.26 12s.01 3.47.06 4.02c.04.87.18 1.34.3 1.66.16.42.36.72.67 1.03.31.31.61.51 1.03.67.32.12.79.26 1.66.3 1.05.05 1.37.06 4.02.06s2.97-.01 4.02-.06c.87-.04 1.34-.18 1.66-.3.42-.16.72-.36 1.03-.67.31-.31.51-.61.67-1.03.12-.32.26-.79.3-1.66.05-.55.06-.87.06-4.02s-.01-3.47-.06-4.02c-.04-.87-.18-1.34-.3-1.66a2.7 2.7 0 0 0-.67-1.03 2.7 2.7 0 0 0-1.03-.67c-.32-.12-.79-.26-1.66-.3C14.97 3.81 14.65 3.8 12 3.8zm0 3.05a5.15 5.15 0 1 1 0 10.3 5.15 5.15 0 0 1 0-10.3zm0 1.8a3.35 3.35 0 1 0 0 6.7 3.35 3.35 0 0 0 0-6.7zm5.35-1.99a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"/></svg>
+             </a>
+             <a
+               href="https://www.tiktok.com/@sofiane.raw?lang=fr"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="TikTok"
+               title="TikTok"
+               className="group flex items-center justify-center w-11 h-11 rounded-full border border-zinc-800 text-zinc-400 hover:text-black hover:bg-gradient-to-br hover:from-amber-200 hover:to-yellow-600 hover:border-transparent hover:scale-110 transition-all duration-300"
+             >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16.6 5.82A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.62 0 3.31 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.31 1.38V7.3s-1.88.09-3.25-1.48z"/></svg>
+             </a>
+             <a
+               href="https://www.linkedin.com/in/sofiane-belhou/"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="LinkedIn"
+               title="LinkedIn"
+               className="group flex items-center justify-center w-11 h-11 rounded-full border border-zinc-800 text-zinc-400 hover:text-black hover:bg-gradient-to-br hover:from-amber-200 hover:to-yellow-600 hover:border-transparent hover:scale-110 transition-all duration-300"
+             >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M6.94 8.5H4V19h2.94V8.5zM5.47 7.13a1.7 1.7 0 1 0 0-3.4 1.7 1.7 0 0 0 0 3.4zM20 19v-5.8c0-3.1-1.65-4.55-3.86-4.55-1.78 0-2.58.98-3.02 1.67V8.5H10.2c.04.85 0 10.5 0 10.5h2.92v-5.87c0-.31.02-.63.11-.85.25-.63.81-1.28 1.76-1.28 1.24 0 1.74.94 1.74 2.33V19H20z"/></svg>
+             </a>
           </div>
         </footer>
       </main>
