@@ -4,13 +4,12 @@ import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X } from "lucide-react"
+import { Menu, X, CalendarCheck } from "lucide-react"
 
 const LINKS = [
   { label: "Portfolio", hash: "gallery" },
   { label: "Prestations", hash: "prestations" },
   { label: "Tarifs", href: "/tarifs" },
-  { label: "Contact", hash: "contact" },
 ]
 
 export default function SiteNav() {
@@ -31,6 +30,7 @@ export default function SiteNav() {
   const isHome = pathname === "/"
   const linkHref = (link: (typeof LINKS)[number]) =>
     link.href ? link.href : isHome ? `#${link.hash}` : `/#${link.hash}`
+  const reserveHref = isHome ? "#contact" : "/#contact"
 
   return (
     <>
@@ -57,6 +57,15 @@ export default function SiteNav() {
                 <span className="pointer-events-none absolute left-1/2 -bottom-0.5 h-px w-0 -translate-x-1/2 bg-gradient-to-r from-amber-200 to-yellow-600 transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
+
+            <a
+              href={reserveHref}
+              className="group relative flex items-center gap-2 pl-4 pr-5 py-2.5 rounded-full bg-gradient-to-r from-amber-200 to-yellow-600 text-black overflow-hidden"
+            >
+              <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+              <CalendarCheck size={13} strokeWidth={2.5} className="relative" />
+              <span className="relative text-[10px] font-black uppercase tracking-[0.2em]">Réserver</span>
+            </a>
           </nav>
 
           <button
@@ -100,6 +109,17 @@ export default function SiteNav() {
                 </Link>
               </motion.div>
             ))}
+            <motion.a
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 * LINKS.length, duration: 0.35 }}
+              href={reserveHref}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 mt-4 px-7 py-3.5 rounded-full bg-gradient-to-r from-amber-200 to-yellow-600 text-black"
+            >
+              <CalendarCheck size={14} strokeWidth={2.5} />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Réserver une séance</span>
+            </motion.a>
           </motion.div>
         )}
       </AnimatePresence>
