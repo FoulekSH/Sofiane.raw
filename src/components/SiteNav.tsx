@@ -24,6 +24,20 @@ export default function SiteNav() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
+  // Recale le scroll vers l'ancre de l'URL (ex: venant de /tarifs vers /#contact) :
+  // au premier saut, une bonne partie des images plus bas dans la page n'ont pas
+  // encore fini de se charger, ce qui décale silencieusement la section visée.
+  useEffect(() => {
+    const hash = window.location.hash
+    if (!hash) return
+    const scrollToHash = () => {
+      const el = document.querySelector(hash)
+      if (el) el.scrollIntoView({ behavior: "auto", block: "start" })
+    }
+    const timers = [50, 350, 800].map((delay) => window.setTimeout(scrollToHash, delay))
+    return () => timers.forEach((t) => window.clearTimeout(t))
+  }, [pathname])
+
   const hidden = pathname?.startsWith("/admin") || pathname?.startsWith("/login") || pathname?.startsWith("/dl")
   if (hidden) return null
 

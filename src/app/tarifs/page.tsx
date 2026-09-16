@@ -17,7 +17,7 @@ export default async function TarifsPage() {
   })
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white pt-40 pb-32 px-4 md:px-12">
+    <main className="min-h-screen bg-zinc-950 text-white pt-24 md:pt-28 pb-32 px-4 md:px-12">
       <div className="max-w-6xl mx-auto space-y-20">
         <div className="space-y-4">
           <Link href="/" className="relative z-50 inline-flex items-center gap-2 -ml-2 px-2 py-2 text-[10px] uppercase tracking-[0.4em] text-zinc-400 hover:text-white transition">

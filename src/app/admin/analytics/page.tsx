@@ -79,7 +79,7 @@ export default async function AnalyticsPage() {
           <h3 className="text-xs uppercase font-black tracking-widest text-white">Visites — 14 derniers jours</h3>
           <div className="flex items-end gap-1.5 h-32">
             {dayBuckets.map((d, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2 group relative">
+              <div key={i} className="flex-1 h-full flex flex-col justify-end items-center gap-2 group relative">
                 <div
                   className="w-full bg-amber-200/80 group-hover:bg-amber-200 rounded-t-sm transition-colors"
                   style={{ height: `${Math.max(4, (d.count / maxDay) * 100)}%` }}
