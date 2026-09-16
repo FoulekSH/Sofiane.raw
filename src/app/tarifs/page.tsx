@@ -34,7 +34,7 @@ export default async function TarifsPage() {
           <div className="text-center py-32 space-y-6">
             <p className="text-zinc-600 uppercase tracking-widest text-sm">Grille tarifaire en cours de préparation.</p>
             <Link
-              href="/#contact"
+              href="/#contact-form"
               className="inline-block bg-white text-black px-10 py-4 rounded-full text-xs font-black uppercase tracking-[0.3em] hover:bg-zinc-200 transition"
             >
               Demander un devis
@@ -79,7 +79,7 @@ export default async function TarifsPage() {
                   </ul>
 
                   <Link
-                    href={`/?plan=${encodeURIComponent(plan.name)}#contact`}
+                    href={`/?plan=${encodeURIComponent(plan.name)}#contact-form`}
                     className={`text-center px-6 py-4 rounded-full text-xs font-black uppercase tracking-[0.3em] transition ${
                       plan.highlighted
                         ? "bg-white text-black hover:bg-zinc-200"

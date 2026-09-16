@@ -200,7 +200,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
                        Un projet en tête ? Discutons-en et donnons-lui vie.
                     </p>
                     <a
-                       href="#contact"
+                       href="#contact-form"
                        className="group relative px-14 py-5 overflow-hidden bg-white rounded-full transition-all duration-500 hover:bg-zinc-200 hover:scale-105"
                     >
                        <span className="relative z-10 text-black text-xs font-black uppercase tracking-[0.4em]">

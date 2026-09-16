@@ -103,7 +103,7 @@ export default function ContactForm({ reviews = [], initialSubject = "" }: { rev
           </button>
         </motion.div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-12">
+        <form id="contact-form" onSubmit={handleSubmit} className="space-y-12 scroll-mt-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-4 text-left border-b border-zinc-900 pb-4 focus-within:border-white transition-colors">
               <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-bold">Votre Nom</label>

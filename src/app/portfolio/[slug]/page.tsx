@@ -105,7 +105,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 Cette série vous inspire ? Parlons de votre projet.
              </p>
              <Link
-                href="/#contact"
+                href="/#contact-form"
                 className="inline-block group relative px-14 py-5 overflow-hidden bg-white rounded-full transition-all duration-500 hover:bg-zinc-200 hover:scale-105"
              >
                 <span className="relative z-10 text-black text-xs font-black uppercase tracking-[0.4em]">

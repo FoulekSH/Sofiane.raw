@@ -44,7 +44,7 @@ export default function SiteNav() {
   const isHome = pathname === "/"
   const linkHref = (link: (typeof LINKS)[number]) =>
     link.href ? link.href : isHome ? `#${link.hash}` : `/#${link.hash}`
-  const reserveHref = isHome ? "#contact" : "/#contact"
+  const reserveHref = isHome ? "#contact-form" : "/#contact-form"
 
   return (
     <>

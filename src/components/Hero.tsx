@@ -58,7 +58,7 @@ export default function Hero({ photo }: { photo?: string }) {
           </p>
           
           <div className="pt-4 sm:pt-8">
-            <a href="#contact" className="px-6 py-3 sm:px-12 sm:py-5 bg-white text-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.4em] font-bold rounded-full hover:bg-zinc-200 transition-all duration-500 transform hover:scale-105">
+            <a href="#contact-form" className="px-6 py-3 sm:px-12 sm:py-5 bg-white text-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.4em] font-bold rounded-full hover:bg-zinc-200 transition-all duration-500 transform hover:scale-105">
               Réserver une séance
             </a>
           </div>
