@@ -4,7 +4,9 @@ import ContactForm from '@/components/ContactForm'
 import ScrollReveal from '@/components/ScrollReveal'
 import Hero from '@/components/Hero'
 import CategoryCarousel from '@/components/CategoryCarousel'
+import PrestigeMarquee from '@/components/PrestigeMarquee'
 import Link from 'next/link'
+import { resolveCategory, categoryMatches } from '@/lib/categories'
 
 export const revalidate = 60
 
@@ -28,10 +30,18 @@ export default async function Home() {
     const heroPhoto = heroFlagged || photos[0]
     const featuredPhoto = featuredFlagged || photos[1] || photos[0]
 
+    const prestigeCategory = resolveCategory("prestige")
+    const prestigePhotos = prestigeCategory
+      ? photos.filter(p => categoryMatches(p.category, prestigeCategory))
+      : []
+
     return (
       <main className="min-h-screen bg-zinc-950 overflow-x-hidden">
         {/* SECTION 1: HERO CINÉMATIQUE */}
         <Hero photo={heroPhoto?.filename || ""} />
+
+        {/* SECTION PRESTIGE — bandeau défilant, n'apparaît que si des photos sont taguées "Prestige" */}
+        <PrestigeMarquee photos={prestigePhotos} />
 
         {/* SECTION 2: L'OEUVRE À LA UNE */}
         <section className="py-32 px-4 md:px-8 bg-zinc-950">

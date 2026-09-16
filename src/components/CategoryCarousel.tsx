@@ -12,6 +12,7 @@ const FALLBACKS: Record<string, string> = {
   sport: "1788373271284_A7401791.jpg",
   portrait: "1788373292043_A7400533.jpg",
   auto: "1788372914655_A7401960.jpg",
+  prestige: "1788373114374_A7407151.jpg",
 }
 
 const categoriesList = CATEGORIES.map((c) => ({
@@ -36,7 +37,7 @@ export default function CategoryCarousel() {
           Parcourir les <span className="font-light text-zinc-500">Séries</span>
         </h2>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
           {categoriesList.map((cat) => {
             const config = configs.find(c => c.slug === cat.slug)
             const image = config?.coverImage || cat.fallback

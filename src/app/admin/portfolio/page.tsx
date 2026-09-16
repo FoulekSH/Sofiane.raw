@@ -3,9 +3,12 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion"
 import { GripVertical, Star, Image, ArrowLeft, ArrowRight } from "lucide-react"
-import { normalizeCategoryValue, splitCategoryValues } from "@/lib/categories"
+import { CATEGORIES, normalizeCategoryValue, splitCategoryValues } from "@/lib/categories"
 
-const categories = ["Mode / Éditorial", "Branding / Content", "Événementiel", "Sport", "Portraits", "Automobile", "Portfolio"]
+// "Portfolio" est une pseudo-catégorie (catégorie par défaut/non classée),
+// elle n'existe pas dans la liste CATEGORIES mais reste un choix valide
+// pour le tri en masse ci-dessous.
+const categories = [...CATEGORIES.map((c) => c.name), "Portfolio"]
 
 function PhotoCard({ photo, index, total, selectedIds, toggleSelect, updatePhoto, categories, movePhoto }: any) {
   const dragControls = useDragControls()
