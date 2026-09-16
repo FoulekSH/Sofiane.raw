@@ -113,6 +113,9 @@ export default async function Home() {
 
         <CategoryCarousel />
 
+        {/* SECTION COLLABORATIONS — marques/clients, n'apparaît que si Sofiane en a ajouté en admin */}
+        <CollaborationsSection items={collaborations} />
+
         <section id="gallery" className="py-32 px-4 md:px-12 bg-white text-zinc-950">
           <div className="mb-32 flex flex-col md:flex-row md:items-end justify-between gap-8">
             <ScrollReveal direction="left">
@@ -137,9 +140,6 @@ export default async function Home() {
           
           <Gallery photos={photos.map(p => p.filename)} />
         </section>
-
-        {/* SECTION COLLABORATIONS — marques/clients, n'apparaît que si Sofiane en a ajouté en admin */}
-        <CollaborationsSection items={collaborations} />
 
         <section className="py-48 px-4 md:px-8 bg-zinc-950">
            <div className="max-w-7xl mx-auto space-y-32">
