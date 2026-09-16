@@ -11,8 +11,9 @@ import { resolveCategory } from '@/lib/categories'
 
 export const revalidate = 60
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
   try {
+    const { plan } = await searchParams
     const [photos, heroFlagged, featuredFlagged, collaborations, reviews] = await Promise.all([
       prisma.photo.findMany({
         where: {
@@ -219,11 +220,21 @@ export default async function Home() {
                  <h2 className="text-[clamp(2.8rem,10vw,8rem)] font-light leading-[0.9] break-words">DÉBUTER UNE <br /><span className="italic font-serif">HISTOIRE.</span></h2>
               </div>
            </ScrollReveal>
-           <ContactForm reviews={reviews} />
+           <ContactForm reviews={reviews} initialSubject={plan ? `Tarif sélectionné : ${plan}` : ""} />
         </section>
         
-        <footer className="py-14 px-8 flex flex-col md:flex-row justify-between items-center gap-8 text-zinc-500 text-[9px] tracking-[0.4em] uppercase border-t border-zinc-900">
-          <div>SOFIANE RAW • {new Date().getFullYear()} © ALL RIGHTS RESERVED</div>
+        <footer className="py-14 px-8 flex flex-col md:flex-row justify-between items-center gap-6 text-zinc-500 text-[9px] tracking-[0.4em] uppercase border-t border-zinc-900">
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <span>SOFIANE RAW • {new Date().getFullYear()} © ALL RIGHTS RESERVED</span>
+            <a
+              href="https://evasion-studio.fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-700 hover:text-amber-200 tracking-[0.3em] transition-colors duration-300 normal-case text-[10px]"
+            >
+              Site réalisé par Évasion Studio
+            </a>
+          </div>
           <div className="flex gap-4">
              <a
                href="https://www.instagram.com/sofiane.raw/"

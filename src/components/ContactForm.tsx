@@ -12,12 +12,12 @@ type ReviewItem = {
   source: string | null
 }
 
-export default function ContactForm({ reviews = [] }: { reviews?: ReviewItem[] }) {
+export default function ContactForm({ reviews = [], initialSubject = "" }: { reviews?: ReviewItem[]; initialSubject?: string }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    subject: "",
+    subject: initialSubject,
     message: ""
   })
 

@@ -79,7 +79,7 @@ export default async function TarifsPage() {
                   </ul>
 
                   <Link
-                    href="/#contact"
+                    href={`/?plan=${encodeURIComponent(plan.name)}#contact`}
                     className={`text-center px-6 py-4 rounded-full text-xs font-black uppercase tracking-[0.3em] transition ${
                       plan.highlighted
                         ? "bg-white text-black hover:bg-zinc-200"
