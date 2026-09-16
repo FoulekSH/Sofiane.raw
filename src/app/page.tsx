@@ -35,6 +35,12 @@ export default async function Home() {
       ? photos.filter(p => categoryMatches(p.category, prestigeCategory))
       : []
 
+    // Résout la 1ère étiquette de la photo à la une vers un vrai slug
+    // (auparavant le nom brut était mis en minuscule tel quel, ex.
+    // "/portfolio/branding / content" au lieu de "/portfolio/branding").
+    const featuredFirstTag = featuredPhoto?.category?.split(',')[0]?.trim()
+    const featuredCategorySlug = featuredFirstTag ? resolveCategory(featuredFirstTag)?.slug : undefined
+
     return (
       <main className="min-h-screen bg-zinc-950 overflow-x-hidden">
         {/* SECTION 1: HERO CINÉMATIQUE */}
@@ -79,7 +85,7 @@ export default async function Home() {
                 
                 <ScrollReveal delay={0.4} direction="right">
                    <Link 
-                     href={featuredPhoto?.category ? `/portfolio/${featuredPhoto.category.split(',')[0].trim().toLowerCase()}` : "#gallery"} 
+                     href={featuredCategorySlug ? `/portfolio/${featuredCategorySlug}` : "#gallery"} 
                      className="inline-block group relative z-50 cursor-pointer"
                    >
                       <div className="flex items-center gap-4">
