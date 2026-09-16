@@ -4,6 +4,7 @@ import ContactForm from '@/components/ContactForm'
 import ScrollReveal from '@/components/ScrollReveal'
 import Hero from '@/components/Hero'
 import CategoryCarousel from '@/components/CategoryCarousel'
+import CollaborationsSection from '@/components/CollaborationsSection'
 import Link from 'next/link'
 import { resolveCategory } from '@/lib/categories'
 
@@ -11,7 +12,7 @@ export const revalidate = 60
 
 export default async function Home() {
   try {
-    const [photos, heroFlagged, featuredFlagged] = await Promise.all([
+    const [photos, heroFlagged, featuredFlagged, collaborations] = await Promise.all([
       prisma.photo.findMany({
         where: {
           isPublic: true,
@@ -23,7 +24,8 @@ export default async function Home() {
       // indépendamment du fait qu'elles soient affichées dans la grille
       // d'accueil : il suffit qu'elles soient publiques.
       prisma.photo.findFirst({ where: { isPublic: true, isHero: true } }),
-      prisma.photo.findFirst({ where: { isPublic: true, isFeatured: true } })
+      prisma.photo.findFirst({ where: { isPublic: true, isFeatured: true } }),
+      prisma.collaboration.findMany({ where: { isPublic: true }, orderBy: { order: 'asc' } })
     ])
 
     const heroPhoto = heroFlagged || photos[0]
@@ -136,12 +138,15 @@ export default async function Home() {
           <Gallery photos={photos.map(p => p.filename)} />
         </section>
 
+        {/* SECTION COLLABORATIONS — marques/clients, n'apparaît que si Sofiane en a ajouté en admin */}
+        <CollaborationsSection items={collaborations} />
+
         <section className="py-48 px-4 md:px-8 bg-zinc-950">
            <div className="max-w-7xl mx-auto space-y-32">
               <ScrollReveal>
                  <div className="text-center space-y-4">
                     <span className="text-[10px] text-zinc-400 uppercase tracking-[0.6em] font-bold">Services</span>
-                    <h2 className="text-4xl md:text-7xl font-bold tracking-tighter text-white uppercase italic">Collaborations</h2>
+                    <h2 className="text-4xl md:text-7xl font-bold tracking-tighter text-white uppercase italic">Prestations</h2>
                  </div>
               </ScrollReveal>
 

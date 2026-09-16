@@ -60,6 +60,9 @@ export default async function AdminLayout({
           <Link href="/admin/portfolio/categories" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Catégories
           </Link>
+          <Link href="/admin/collaborations" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
+            Collaborations
+          </Link>
           <div className="hidden md:block h-px bg-zinc-800 mx-4 my-2"></div>
           <Link href="/admin/settings" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Paramètres
