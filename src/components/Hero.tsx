@@ -49,7 +49,7 @@ export default function Hero({ photo }: { photo?: string }) {
           transition={{ duration: 2, delay: 1.5 }}
           className="flex flex-col items-center gap-6 sm:gap-8"
         >
-          <p className="text-zinc-500 text-[9px] sm:text-xs md:text-sm tracking-[0.35em] sm:tracking-[0.8em] uppercase font-bold">
+          <p className="text-zinc-400 text-[9px] sm:text-xs md:text-sm tracking-[0.35em] sm:tracking-[0.8em] uppercase font-bold">
             Créateur d'images
           </p>
           
@@ -63,7 +63,7 @@ export default function Hero({ photo }: { photo?: string }) {
 
       {/* Decorative lines */}
       <div className="absolute left-1/2 bottom-12 -translate-x-1/2 flex flex-col items-center gap-4">
-         <span className="text-[9px] text-zinc-700 uppercase tracking-[0.4em] rotate-180 vertical-text">Scroll</span>
+         <span className="text-[9px] text-zinc-500 uppercase tracking-[0.4em] rotate-180 vertical-text">Scroll</span>
          <motion.div 
            animate={{ y: [0, 12, 0] }}
            transition={{ duration: 2, repeat: Infinity }}
@@ -75,7 +75,7 @@ export default function Hero({ photo }: { photo?: string }) {
          <p className="text-[9px] text-zinc-800 uppercase tracking-[0.4em]"></p>
       </div>
       <div className="absolute top-12 right-12 hidden md:block">
-         <p className="text-[9px] text-zinc-800 uppercase tracking-[0.4em]">Paris / Worldwide</p>
+         <p className="text-[9px] text-zinc-500 uppercase tracking-[0.4em]">Paris / Worldwide</p>
       </div>
     </section>
   )

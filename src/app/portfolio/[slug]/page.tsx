@@ -78,6 +78,21 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           </div>
 
           <Gallery photos={photos.map(p => p.filename)} />
+
+          {/* CTA — cette catégorie n'avait jusqu'ici aucun lien vers le formulaire */}
+          <div className="border-t border-zinc-900 pt-16 pb-8 text-center space-y-6">
+             <p className="text-zinc-400 text-sm uppercase tracking-widest">
+                Cette série vous inspire ? Parlons de votre projet.
+             </p>
+             <Link
+                href="/#contact"
+                className="inline-block group relative px-14 py-5 overflow-hidden bg-white rounded-full transition-all duration-500 hover:bg-zinc-200 hover:scale-105"
+             >
+                <span className="relative z-10 text-black text-xs font-black uppercase tracking-[0.4em]">
+                   Réserver une séance
+                </span>
+             </Link>
+          </div>
         </div>
       </main>
     )

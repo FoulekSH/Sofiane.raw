@@ -66,7 +66,7 @@ export default function ContactForm() {
 
           <div className="relative text-center space-y-2">
              <p className="text-zinc-500 text-[9px] uppercase tracking-[0.6em] font-bold group-hover:text-white transition-colors">Retrouvez-nous sur Trustpilot</p>
-             <div className="flex items-center justify-center gap-4 text-[8px] uppercase tracking-widest text-zinc-700">
+             <div className="flex items-center justify-center gap-4 text-[8px] uppercase tracking-widest text-zinc-500">
                 <span className="w-8 h-px bg-zinc-900"></span>
                 <span className="group-hover:text-emerald-500 transition-colors">Partagez votre expérience</span>
                 <span className="w-8 h-px bg-zinc-900"></span>
@@ -95,48 +95,48 @@ export default function ContactForm() {
         <form onSubmit={handleSubmit} className="space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-4 text-left border-b border-zinc-900 pb-4 focus-within:border-white transition-colors">
-              <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-600 font-bold">Votre Nom</label>
+              <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-bold">Votre Nom</label>
               <input 
                 type="text" 
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
-                className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-800"
+                className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-600"
                 placeholder="JEAN DUPONT"
               />
             </div>
             <div className="space-y-4 text-left border-b border-zinc-900 pb-4 focus-within:border-white transition-colors">
-              <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-600 font-bold">Votre Email</label>
+              <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-bold">Votre Email</label>
               <input 
                 type="email" 
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 required
-                className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-800"
+                className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-600"
                 placeholder="CONTACT@EXEMPLE.COM"
               />
             </div>
           </div>
 
           <div className="space-y-4 text-left border-b border-zinc-900 pb-4 focus-within:border-white transition-colors">
-            <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-600 font-bold">Objet</label>
+            <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-bold">Objet</label>
             <input 
               type="text" 
               value={formData.subject}
               onChange={(e) => setFormData({...formData, subject: e.target.value})}
-              className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-800"
+              className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-600"
               placeholder="PROJET ÉDITORIAL / SHOOTING PRIVÉ"
             />
           </div>
 
           <div className="space-y-4 text-left border-b border-zinc-900 pb-4 focus-within:border-white transition-colors">
-            <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-600 font-bold">Votre Message</label>
+            <label className="block text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-bold">Votre Message</label>
             <textarea 
               value={formData.message}
               onChange={(e) => setFormData({...formData, message: e.target.value})}
               required
               rows={4}
-              className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-800 resize-none"
+              className="w-full bg-transparent border-none outline-none text-white text-xl font-light placeholder:text-zinc-600 resize-none"
               placeholder="DÉTAILLEZ VOTRE VISION ICI..."
             />
           </div>

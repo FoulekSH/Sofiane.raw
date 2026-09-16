@@ -57,7 +57,7 @@ export default async function Home() {
              <div className="w-full md:w-1/2 space-y-12">
                  <ScrollReveal direction="right">
                     <div className="space-y-6">
-                       <span className="text-[10px] text-zinc-600 uppercase tracking-[0.6em] font-bold">Série à la une</span>
+                       <span className="text-[10px] text-zinc-400 uppercase tracking-[0.6em] font-bold">Série à la une</span>
                        <h2 className="text-4xl md:text-7xl font-bold tracking-tighter leading-none text-white italic">
                          {(featuredPhoto?.title && !featuredPhoto.title.match(/\.(jpg|jpeg|png|webp|gif)$/i)) ? featuredPhoto.title : "L'ESSENCE DU REGARD."}
                        </h2>
@@ -133,7 +133,7 @@ export default async function Home() {
            <div className="max-w-7xl mx-auto space-y-32">
               <ScrollReveal>
                  <div className="text-center space-y-4">
-                    <span className="text-[10px] text-zinc-700 uppercase tracking-[0.6em] font-bold">Services</span>
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-[0.6em] font-bold">Services</span>
                     <h2 className="text-4xl md:text-7xl font-bold tracking-tighter text-white uppercase italic">Collaborations</h2>
                  </div>
               </ScrollReveal>
@@ -160,15 +160,15 @@ export default async function Home() {
                    }
                  ].map((service, i) => (
                     <div key={service.id} className="bg-zinc-950 p-16 space-y-12 hover:bg-zinc-900/50 transition duration-1000 group">
-                       <span className="text-zinc-800 text-6xl font-serif italic group-hover:text-zinc-500 transition-colors duration-700">{service.id}</span>
+                       <span className="text-zinc-700 text-6xl font-serif italic group-hover:text-zinc-400 transition-colors duration-700">{service.id}</span>
                        <div className="space-y-6">
                           <h3 className="text-2xl text-white uppercase tracking-widest">{service.title}</h3>
-                          <p className="text-zinc-500 text-sm leading-relaxed">{service.desc}</p>
+                          <p className="text-zinc-400 text-sm leading-relaxed">{service.desc}</p>
                        </div>
                        <ul className="space-y-4">
                           {service.features.map(f => (
-                             <li key={f} className="text-[10px] uppercase tracking-[0.2em] text-zinc-700 flex items-center gap-3">
-                                <div className="w-1 h-1 bg-zinc-800 rounded-full"></div>
+                             <li key={f} className="text-[10px] uppercase tracking-[0.2em] text-zinc-400 flex items-center gap-3">
+                                <div className="w-1 h-1 bg-zinc-600 rounded-full"></div>
                                 {f}
                              </li>
                           ))}
@@ -176,6 +176,22 @@ export default async function Home() {
                     </div>
                  ))}
               </div>
+
+              <ScrollReveal>
+                 <div className="flex flex-col items-center gap-8 text-center pt-8">
+                    <p className="text-zinc-400 text-sm uppercase tracking-widest max-w-md">
+                       Un projet en tête ? Discutons-en et donnons-lui vie.
+                    </p>
+                    <a
+                       href="#contact"
+                       className="group relative px-14 py-5 overflow-hidden bg-white rounded-full transition-all duration-500 hover:bg-zinc-200 hover:scale-105"
+                    >
+                       <span className="relative z-10 text-black text-xs font-black uppercase tracking-[0.4em]">
+                          Demander un devis
+                       </span>
+                    </a>
+                 </div>
+              </ScrollReveal>
            </div>
         </section>
         
@@ -183,14 +199,14 @@ export default async function Home() {
            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-32 bg-gradient-to-b from-zinc-800 to-transparent"></div>
            <ScrollReveal>
               <div className="mb-24 space-y-4">
-                 <span className="text-[10px] text-zinc-700 uppercase tracking-[0.6em] font-bold">Prêt pour la suite ?</span>
+                 <span className="text-[10px] text-zinc-400 uppercase tracking-[0.6em] font-bold">Prêt pour la suite ?</span>
                  <h2 className="text-[clamp(2.8rem,10vw,8rem)] font-light leading-[0.9] break-words">DÉBUTER UNE <br /><span className="italic font-serif">HISTOIRE.</span></h2>
               </div>
            </ScrollReveal>
            <ContactForm />
         </section>
         
-        <footer className="py-12 px-8 flex flex-col md:flex-row justify-between items-center text-zinc-700 text-[9px] tracking-[0.4em] uppercase border-t border-zinc-900">
+        <footer className="py-12 px-8 flex flex-col md:flex-row justify-between items-center text-zinc-500 text-[9px] tracking-[0.4em] uppercase border-t border-zinc-900">
           <div>SOFIANE RAW • {new Date().getFullYear()} © ALL RIGHTS RESERVED</div>
           <div className="mt-6 md:mt-0 flex gap-8">
              <a href="https://www.instagram.com/sofiane.raw/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Instagram</a>
