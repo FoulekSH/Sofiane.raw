@@ -6,13 +6,14 @@ import Hero from '@/components/Hero'
 import CategoryCarousel from '@/components/CategoryCarousel'
 import CollaborationsSection from '@/components/CollaborationsSection'
 import Link from 'next/link'
+import Image from 'next/image'
 import { resolveCategory } from '@/lib/categories'
 
 export const revalidate = 60
 
 export default async function Home() {
   try {
-    const [photos, heroFlagged, featuredFlagged, collaborations] = await Promise.all([
+    const [photos, heroFlagged, featuredFlagged, collaborations, reviews] = await Promise.all([
       prisma.photo.findMany({
         where: {
           isPublic: true,
@@ -25,7 +26,8 @@ export default async function Home() {
       // d'accueil : il suffit qu'elles soient publiques.
       prisma.photo.findFirst({ where: { isPublic: true, isHero: true } }),
       prisma.photo.findFirst({ where: { isPublic: true, isFeatured: true } }),
-      prisma.collaboration.findMany({ where: { isPublic: true }, orderBy: { order: 'asc' } })
+      prisma.collaboration.findMany({ where: { isPublic: true }, orderBy: { order: 'asc' } }),
+      prisma.review.findMany({ where: { isPublic: true }, orderBy: { order: 'asc' } })
     ])
 
     const heroPhoto = heroFlagged || photos[0]
@@ -49,10 +51,12 @@ export default async function Home() {
                 <ScrollReveal direction="left">
                    <div className="relative aspect-[4/5] overflow-hidden group">
                       {featuredPhoto && (
-                        <img 
-                          src={`/api/photos/${featuredPhoto.filename}`} 
-                          alt="Featured Work" 
-                          className="w-full h-full object-cover md:grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-105 pointer-events-none select-none"
+                        <Image
+                          src={`/api/photos/${featuredPhoto.filename}`}
+                          alt="Featured Work"
+                          fill
+                          sizes="(min-width: 768px) 50vw, 100vw"
+                          className="object-cover md:grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-105 pointer-events-none select-none"
                         />
                       )}
                       <div className="absolute inset-0 z-10"></div>
@@ -141,7 +145,7 @@ export default async function Home() {
           <Gallery photos={photos.map(p => p.filename)} />
         </section>
 
-        <section className="py-48 px-4 md:px-8 bg-zinc-950">
+        <section id="prestations" className="py-48 px-4 md:px-8 bg-zinc-950">
            <div className="max-w-7xl mx-auto space-y-32">
               <ScrollReveal>
                  <div className="text-center space-y-4">
@@ -215,7 +219,7 @@ export default async function Home() {
                  <h2 className="text-[clamp(2.8rem,10vw,8rem)] font-light leading-[0.9] break-words">DÉBUTER UNE <br /><span className="italic font-serif">HISTOIRE.</span></h2>
               </div>
            </ScrollReveal>
-           <ContactForm />
+           <ContactForm reviews={reviews} />
         </section>
         
         <footer className="py-12 px-8 flex flex-col md:flex-row justify-between items-center text-zinc-500 text-[9px] tracking-[0.4em] uppercase border-t border-zinc-900">

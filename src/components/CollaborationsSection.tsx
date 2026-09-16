@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { ArrowUpRight } from "lucide-react"
 
 type CollabItem = {
@@ -34,10 +35,12 @@ export default function CollaborationsSection({ items }: { items: CollabItem[] }
               className="group relative aspect-square overflow-hidden bg-zinc-900 border border-zinc-800 text-left cursor-pointer"
             >
               {item.image ? (
-                <img
+                <Image
                   src={`/api/photos/${item.image}`}
                   alt={item.name}
-                  className="w-full h-full object-cover md:grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110 pointer-events-none select-none"
+                  fill
+                  sizes="(min-width: 768px) 25vw, 50vw"
+                  className="object-cover md:grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110 pointer-events-none select-none"
                   onContextMenu={(e) => e.preventDefault()}
                 />
               ) : (
@@ -64,9 +67,11 @@ export default function CollaborationsSection({ items }: { items: CollabItem[] }
             onClick={(e) => e.stopPropagation()}
           >
             {active.image && (
-              <img
+              <Image
                 src={`/api/photos/${active.image}`}
                 alt={active.name}
+                width={96}
+                height={96}
                 className="w-24 h-24 object-cover rounded-full mx-auto border border-zinc-800"
               />
             )}

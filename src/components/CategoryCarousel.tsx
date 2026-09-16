@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { CATEGORIES } from "@/lib/categories"
 
 // Image de secours par catégorie tant qu'aucune couverture n'est définie en admin.
@@ -47,10 +48,12 @@ export default function CategoryCarousel() {
                 key={cat.slug}
                 className="group relative aspect-square overflow-hidden bg-zinc-900 border border-zinc-800"
               >
-                <img 
-                  src={`/api/photos/${image}`} 
+                <Image
+                  src={`/api/photos/${image}`}
                   alt={cat.name}
-                  className="w-full h-full object-cover md:grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110 pointer-events-none select-none"
+                  fill
+                  sizes="(min-width: 1024px) 16vw, (min-width: 768px) 33vw, 50vw"
+                  className="object-cover md:grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110 pointer-events-none select-none"
                   onContextMenu={(e) => e.preventDefault()}
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-all duration-700 z-10" onContextMenu={(e) => e.preventDefault()} />

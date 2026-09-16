@@ -2,8 +2,25 @@ import prisma from "@/lib/prisma"
 import Gallery from "@/components/Gallery"
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
+import type { Metadata } from "next"
 import { ArrowLeft } from "lucide-react"
 import { resolveCategory, categoryNeedles, categoryMatches } from "@/lib/categories"
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const cat = resolveCategory(slug)
+  const config = await prisma.categoryConfig.findUnique({ where: { slug: cat?.slug || slug } })
+  const name = config?.name || cat?.name || slug
+
+  return {
+    title: `${name} | Sofiane Raw`,
+    description: `Découvrez la série ${name} par Sofiane, photographe portrait, mode et événementiel.`,
+    openGraph: config?.coverImage
+      ? { images: [{ url: `/api/photos/${config.coverImage}` }] }
+      : undefined,
+  }
+}
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -47,10 +64,13 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         {/* Image d'entête personnalisable (admin > Catégories) */}
         {config?.coverImage && (
           <div className="relative w-full h-[45vh] md:h-[60vh] overflow-hidden">
-            <img
+            <Image
               src={`/api/photos/${config.coverImage}`}
               alt={config?.name || cat?.name || slug}
-              className="w-full h-full object-cover md:grayscale pointer-events-none select-none"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover md:grayscale pointer-events-none select-none"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/60 pointer-events-none"></div>
           </div>

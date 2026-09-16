@@ -2,8 +2,17 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import ReviewsCarousel from "./ReviewsCarousel"
 
-export default function ContactForm() {
+type ReviewItem = {
+  id: string
+  authorName: string
+  rating: number
+  text: string
+  source: string | null
+}
+
+export default function ContactForm({ reviews = [] }: { reviews?: ReviewItem[] }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [formData, setFormData] = useState({
     name: "",
@@ -73,6 +82,8 @@ export default function ContactForm() {
              </div>
           </div>
         </a>
+
+        <ReviewsCarousel reviews={reviews} />
       </div>
 
       {status === 'success' ? (

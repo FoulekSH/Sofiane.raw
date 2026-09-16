@@ -63,7 +63,16 @@ export default async function AdminLayout({
           <Link href="/admin/collaborations" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Collaborations
           </Link>
+          <Link href="/admin/pricing" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
+            Tarifs
+          </Link>
+          <Link href="/admin/reviews" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
+            Avis
+          </Link>
           <div className="hidden md:block h-px bg-zinc-800 mx-4 my-2"></div>
+          <Link href="/admin/analytics" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
+            Statistiques
+          </Link>
           <Link href="/admin/settings" className="px-4 py-3 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 transition whitespace-nowrap">
             Paramètres
           </Link>

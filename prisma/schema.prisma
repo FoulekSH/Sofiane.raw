@@ -127,3 +127,39 @@ model Settings {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+model PricingPlan {
+  id          String   @id @default(cuid())
+  name        String
+  price       String   // texte libre : "À partir de 350€", "Sur devis"...
+  tagline     String?
+  features    String   // JSON stringifié d'un tableau de lignes
+  highlighted Boolean  @default(false)
+  order       Int      @default(0)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  authorName String
+  rating     Int      @default(5)
+  text       String
+  source     String?  // ex: "Google", "Instagram"...
+  order      Int      @default(0)
+  isPublic   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  device    String?
+  createdAt DateTime @default(now())
+
+  @@index([path])
+  @@index([createdAt])
+}

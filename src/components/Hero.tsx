@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import Image from "next/image"
 
 export default function Hero({ photo }: { photo?: string }) {
   return (
@@ -13,10 +14,13 @@ export default function Hero({ photo }: { photo?: string }) {
         className="absolute inset-0 z-0"
       >
         {photo ? (
-          <img 
-            src={`/api/photos/${photo}`} 
-            alt="Hero Cinematic" 
-            className="w-full h-full object-cover object-[center_25%] md:object-center pointer-events-none select-none"
+          <Image
+            src={`/api/photos/${photo}`}
+            alt="Hero Cinematic"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_25%] md:object-center pointer-events-none select-none"
             onContextMenu={(e) => e.preventDefault()}
           />
         ) : (
